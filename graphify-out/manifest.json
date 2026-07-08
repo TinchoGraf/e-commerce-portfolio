@@ -1,0 +1,227 @@
+{
+  "PROJECT_CONTEXT.md": {
+    "mtime": 1783545424.0586853,
+    "ast_hash": "03e264ed6b5c4fa30b03b85aeffeacf7",
+    "semantic_hash": ""
+  },
+  "backend/alembic/env.py": {
+    "mtime": 1783545645.6951149,
+    "ast_hash": "774ff70fdb59e4bf5fd62a4e681119e2",
+    "semantic_hash": ""
+  },
+  "backend/alembic/versions/7d67e9bd06a9_initial_schema.py": {
+    "mtime": 1783546279.344962,
+    "ast_hash": "09791535c41756a8617a8f9bebd7beaa",
+    "semantic_hash": ""
+  },
+  "backend/app/__init__.py": {
+    "mtime": 1783545548.3205395,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/config.py": {
+    "mtime": 1783545559.3593488,
+    "ast_hash": "9ee3830bc615d396a90980631f765384",
+    "semantic_hash": ""
+  },
+  "backend/app/database.py": {
+    "mtime": 1783545562.228254,
+    "ast_hash": "ebddd0d6bc2fbef8eeb788bfae5249c2",
+    "semantic_hash": ""
+  },
+  "backend/app/dependencies/__init__.py": {
+    "mtime": 1783545552.319602,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/dependencies/auth.py": {
+    "mtime": 1783545665.0120902,
+    "ast_hash": "5e4f5a0299426b1522e7f83c46053b6c",
+    "semantic_hash": ""
+  },
+  "backend/app/main.py": {
+    "mtime": 1783545597.2789843,
+    "ast_hash": "0b47dded75fa1535c3b430056aa45669",
+    "semantic_hash": ""
+  },
+  "backend/app/middleware/__init__.py": {
+    "mtime": 1783545552.688338,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/middleware/rate_limiter.py": {
+    "mtime": 1783545574.2619286,
+    "ast_hash": "e290d7caaf4f2d54a1a40bac7e20f65f",
+    "semantic_hash": ""
+  },
+  "backend/app/models/__init__.py": {
+    "mtime": 1783545954.3422134,
+    "ast_hash": "7b4721bc4f860a0c5ac06cb3c1695789",
+    "semantic_hash": ""
+  },
+  "backend/app/models/address.py": {
+    "mtime": 1783545894.8131535,
+    "ast_hash": "875d2fe6da39be795c0b6c0541e0e86a",
+    "semantic_hash": ""
+  },
+  "backend/app/models/base.py": {
+    "mtime": 1783545839.7383015,
+    "ast_hash": "3afca9046ab5cfd7d97b35f69be095d9",
+    "semantic_hash": ""
+  },
+  "backend/app/models/brand.py": {
+    "mtime": 1783545860.8525417,
+    "ast_hash": "a5d200b4be30c9a8d7618bc898d9aba7",
+    "semantic_hash": ""
+  },
+  "backend/app/models/cart.py": {
+    "mtime": 1783545901.767395,
+    "ast_hash": "41d5b2b7c45a1ab3ccf397f71fe97526",
+    "semantic_hash": ""
+  },
+  "backend/app/models/category.py": {
+    "mtime": 1783545856.430832,
+    "ast_hash": "082c7a58fda25b80ac230f495ebc3640",
+    "semantic_hash": ""
+  },
+  "backend/app/models/coupon.py": {
+    "mtime": 1783545932.2748482,
+    "ast_hash": "b7bae27a64472e512a262868f3e2ce7d",
+    "semantic_hash": ""
+  },
+  "backend/app/models/order.py": {
+    "mtime": 1783545949.5276248,
+    "ast_hash": "9047cf0aa73a81142ed18eb1f3ddd881",
+    "semantic_hash": ""
+  },
+  "backend/app/models/product.py": {
+    "mtime": 1783545870.96426,
+    "ast_hash": "88da7c2812ec32319f1786a84f7f8cc6",
+    "semantic_hash": ""
+  },
+  "backend/app/models/product_image.py": {
+    "mtime": 1783545878.8871603,
+    "ast_hash": "d7c1cbe1f2289d2c192d4848fdbe13ac",
+    "semantic_hash": ""
+  },
+  "backend/app/models/product_variant.py": {
+    "mtime": 1783545887.139452,
+    "ast_hash": "26beeebf1b76f596319b06f3e7b2bfad",
+    "semantic_hash": ""
+  },
+  "backend/app/models/review.py": {
+    "mtime": 1783545917.9120142,
+    "ast_hash": "81a8407f7504608faa5f530090aea2ae",
+    "semantic_hash": ""
+  },
+  "backend/app/models/user.py": {
+    "mtime": 1783545848.771171,
+    "ast_hash": "04eeca4b344cc4e3a3181649ce95dcf1",
+    "semantic_hash": ""
+  },
+  "backend/app/models/wishlist.py": {
+    "mtime": 1783545910.160718,
+    "ast_hash": "1e432d11baf8d855068494d7dd54941d",
+    "semantic_hash": ""
+  },
+  "backend/app/routers/__init__.py": {
+    "mtime": 1783545551.5816529,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/routers/auth.py": {
+    "mtime": 1783545591.496282,
+    "ast_hash": "f0cadc80502e8cff23201a7d97120117",
+    "semantic_hash": ""
+  },
+  "backend/app/routers/health.py": {
+    "mtime": 1783545583.166571,
+    "ast_hash": "b2ed195b3b77524c4782491d760106e9",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/__init__.py": {
+    "mtime": 1783546010.493517,
+    "ast_hash": "3ee9abba2a58d4c45247edca51aaf089",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/address.py": {
+    "mtime": 1783545983.0818288,
+    "ast_hash": "21c852d7b49b4dbb6f98ca8a5353517e",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/brand.py": {
+    "mtime": 1783545968.329116,
+    "ast_hash": "8311c137d1a98790a82b69b4fc5f855f",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/cart.py": {
+    "mtime": 1783545986.5362313,
+    "ast_hash": "920dd767f2112113a2f088e3de7d908b",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/category.py": {
+    "mtime": 1783545964.9212096,
+    "ast_hash": "221ea6d845fb65f7311db81e9ace5261",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/coupon.py": {
+    "mtime": 1783546000.210549,
+    "ast_hash": "c1190d1f132aaabc0d161f6bcb18e758",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/order.py": {
+    "mtime": 1783546007.038303,
+    "ast_hash": "cbdc2bcf272d15394efea43b3d733326",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/product.py": {
+    "mtime": 1783545977.8467755,
+    "ast_hash": "4efecb9dbae385dfde8a9b3a4a41ad76",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/review.py": {
+    "mtime": 1783545994.0114002,
+    "ast_hash": "313359266839eff3b1112735482998fb",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/user.py": {
+    "mtime": 1783545960.124678,
+    "ast_hash": "417455aa468637007fc4ff91011d3ace",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas/wishlist.py": {
+    "mtime": 1783545989.5198848,
+    "ast_hash": "21244f313535b3a82b0d79dffd88ff93",
+    "semantic_hash": ""
+  },
+  "backend/app/services/__init__.py": {
+    "mtime": 1783545551.2222526,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/utils/__init__.py": {
+    "mtime": 1783545553.427271,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/utils/constants.py": {
+    "mtime": 1783545566.3611307,
+    "ast_hash": "712c59b1e3f4584af840e9c919149e2b",
+    "semantic_hash": ""
+  },
+  "backend/app/utils/security.py": {
+    "mtime": 1783545571.4448009,
+    "ast_hash": "5a97c9f62a3e62c064730b202d78e6f3",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1783545669.3256752,
+    "ast_hash": "df2539c2cd76656e262b9833666670fb",
+    "semantic_hash": ""
+  },
+  "backend/requirements.txt": {
+    "mtime": 1783546208.064308,
+    "ast_hash": "442f81cab67a88ad3603001f99173bd7",
+    "semantic_hash": ""
+  }
+}
