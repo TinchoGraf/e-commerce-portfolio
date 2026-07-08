@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 from app.utils.constants import UserRole
 
@@ -15,6 +15,20 @@ class UserCreate(BaseModel):
     password: str
     first_name: str
     last_name: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        """Valida que la contraseña cumpla requisitos mínimos de seguridad."""
+        if len(v) < 8:
+            raise ValueError("La contraseña debe tener al menos 8 caracteres")
+        if not any(c.isupper() for c in v):
+            raise ValueError("La contraseña debe contener al menos una mayúscula")
+        if not any(c.islower() for c in v):
+            raise ValueError("La contraseña debe contener al menos una minúscula")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("La contraseña debe contener al menos un número")
+        return v
 
 
 class UserLogin(BaseModel):

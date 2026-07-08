@@ -3,7 +3,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, Integer, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,6 +22,15 @@ class CartItem(Base, UUIDPkMixin, TimestampMixin):
     __tablename__ = "cart_items"
     __table_args__ = (
         UniqueConstraint("user_id", "product_id", "variant_id", name="uq_cart_item_user_product_variant"),
+        # Los NULL no participan de UniqueConstraint en Postgres: este índice parcial
+        # evita duplicados de (user_id, product_id) cuando variant_id es NULL.
+        Index(
+            "ix_cart_item_user_product_no_variant",
+            "user_id",
+            "product_id",
+            unique=True,
+            postgresql_where=text("variant_id IS NULL"),
+        ),
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(
