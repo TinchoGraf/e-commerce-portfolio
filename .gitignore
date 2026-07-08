@@ -32,5 +32,5 @@ alembic/versions/__pycache__/
 # Logs
 *.log
 
-# Graphify (cache regenerable, no versionar)
-graphify-out/cache/
+# Graphify (regenerable con `graphify update .`, pesa y crece en cada fase)
+graphify-out/
