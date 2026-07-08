@@ -4,14 +4,14 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class CouponCreate(BaseModel):
     code: str
     description: str | None = None
     discount_type: str  # "percentage" | "fixed"
-    discount_value: Decimal
+    discount_value: Decimal = Field(gt=0)
     min_purchase_amount: Decimal | None = None
     max_discount_amount: Decimal | None = None
     usage_limit: int | None = None
@@ -19,6 +19,13 @@ class CouponCreate(BaseModel):
     valid_from: datetime
     valid_until: datetime
     is_active: bool = True
+
+    @model_validator(mode="after")
+    def check_valid_dates(self) -> "CouponCreate":
+        """Valida que la fecha de inicio de vigencia sea anterior a la de fin."""
+        if self.valid_from >= self.valid_until:
+            raise ValueError("valid_from debe ser anterior a valid_until")
+        return self
 
 
 class CouponUpdate(BaseModel):
@@ -62,3 +69,20 @@ class CouponUsageResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CouponValidateRequest(BaseModel):
+    """Solicitud para validar un código de cupón contra el carrito actual."""
+
+    code: str
+
+
+class CouponValidateResponse(BaseModel):
+    """Resultado de la validación de un cupón, incluyendo el monto de
+    descuento calculado si es válido.
+    """
+
+    valid: bool
+    coupon: CouponResponse | None = None
+    discount_amount: Decimal | None = None
+    message: str

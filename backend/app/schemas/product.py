@@ -9,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProductImageCreate(BaseModel):
@@ -69,11 +69,11 @@ class ProductCreate(BaseModel):
     slug: str
     description: str | None = None
     short_description: str | None = None
-    price: Decimal
+    price: Decimal = Field(gt=0)
     compare_at_price: Decimal | None = None
     cost_price: Decimal | None = None
     sku: str | None = None
-    stock: int = 0
+    stock: int = Field(default=0, ge=0)
     low_stock_threshold: int = 5
     category_id: uuid.UUID | None = None
     brand_id: uuid.UUID | None = None
@@ -122,3 +122,39 @@ class ProductResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProductListResponse(BaseModel):
+    """Versión resumida del producto para listados (sin descripción completa
+    ni variantes).
+
+    NOTA: ``primary_image_url`` no es un atributo directo del modelo ORM.
+    El router/service debe construir este schema con ``.model_validate()``
+    sobre un dict (o un objeto intermedio) que ya incluya ese valor
+    precalculado (por ejemplo, tomando la imagen con ``is_primary=True``),
+    en vez de confiar en ``from_attributes`` sobre el ORM crudo para ese
+    campo en particular.
+    """
+
+    id: uuid.UUID
+    name: str
+    slug: str
+    price: Decimal
+    compare_at_price: Decimal | None = None
+    is_featured: bool
+    avg_rating: Decimal
+    review_count: int
+    stock: int
+    primary_image_url: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedProductResponse(BaseModel):
+    """Respuesta paginada de productos para endpoints de listado."""
+
+    items: list[ProductListResponse]
+    total: int
+    page: int
+    page_size: int
+    pages: int

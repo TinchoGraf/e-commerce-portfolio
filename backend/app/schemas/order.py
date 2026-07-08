@@ -64,3 +64,20 @@ class OrderResponse(BaseModel):
     items: list[OrderItemResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedOrderResponse(BaseModel):
+    """Respuesta paginada de órdenes para endpoints de listado."""
+
+    items: list[OrderResponse]
+    total: int
+    page: int
+    page_size: int
+    pages: int
+
+
+# OrderResponse ya incluye la lista de items (list[OrderItemResponse]), por
+# lo que el detalle de una orden individual no necesita campos adicionales.
+# Se define como alias para dejar explícito el uso semántico en el endpoint
+# de detalle (GET /orders/{id}) sin duplicar la definición del schema.
+OrderDetailResponse = OrderResponse

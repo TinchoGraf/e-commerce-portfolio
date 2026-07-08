@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str]
     APP_NAME: str = "TechStore API"
     DEBUG: bool = False
+    MERCADOPAGO_ACCESS_TOKEN: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
