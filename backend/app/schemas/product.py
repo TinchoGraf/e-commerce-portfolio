@@ -1,8 +1,4 @@
-"""Schemas Pydantic de productos, imágenes y variantes.
-
-NOTA: son esqueletos básicos (Fase 1); se completan con validaciones y
-schemas anidados (nested) en la Fase 2.
-"""
+"""Schemas Pydantic de productos, imágenes y variantes."""
 
 import uuid
 from datetime import datetime
@@ -10,6 +6,9 @@ from decimal import Decimal
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.brand import BrandResponse
+from app.schemas.category import CategoryResponse
 
 
 class ProductImageCreate(BaseModel):
@@ -120,6 +119,10 @@ class ProductResponse(BaseModel):
     review_count: int
     created_at: datetime
     updated_at: datetime
+    images: list[ProductImageResponse] = []
+    variants: list[ProductVariantResponse] = []
+    category: CategoryResponse | None = None
+    brand: BrandResponse | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Heart, Minus, Plus, ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
 import * as productsApi from '../api/products';
-import * as categoriesApi from '../api/categories';
 import * as wishlistApi from '../api/wishlist';
 import ProductGallery from '../components/product/ProductGallery';
 import VariantSelector from '../components/product/VariantSelector';
@@ -20,17 +19,6 @@ import { useToastStore } from '../stores/toastStore';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { formatPrice, calculateDiscountPercent } from '../utils/formatters';
 
-function findCategoryInTree(categories, categoryId) {
-  for (const category of categories) {
-    if (category.id === categoryId) return category;
-    if (category.children?.length) {
-      const found = findCategoryInTree(category.children, categoryId);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
 export default function ProductPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -42,7 +30,6 @@ export default function ProductPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const [breadcrumbCategory, setBreadcrumbCategory] = useState(null);
   const [selectedVariantId, setSelectedVariantId] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -80,25 +67,6 @@ export default function ProductPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (!product?.category_id) {
-      setBreadcrumbCategory(null);
-      return;
-    }
-    let isMounted = true;
-    categoriesApi
-      .getCategories()
-      .then((response) => {
-        if (isMounted) setBreadcrumbCategory(findCategoryInTree(response.data, product.category_id));
-      })
-      .catch(() => {
-        if (isMounted) setBreadcrumbCategory(null);
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, [product?.category_id]);
-
-  useEffect(() => {
     if (!isAuthenticated || !product) {
       setIsWishlisted(false);
       return;
@@ -119,7 +87,7 @@ export default function ProductPage() {
     };
   }, [isAuthenticated, product]);
 
-  const variants = product?.variants ?? product?.active_variants ?? [];
+  const variants = product?.variants ?? [];
   const images = product?.images ?? [];
   const selectedVariant = variants.find((variant) => variant.id === selectedVariantId) || null;
 
@@ -250,10 +218,10 @@ export default function ProductPage() {
           Home
         </Link>
         <ChevronRight size={14} />
-        {breadcrumbCategory && (
+        {product.category && (
           <>
-            <Link to={`/categoria/${breadcrumbCategory.slug}`} className="hover:text-brand-600">
-              {breadcrumbCategory.name}
+            <Link to={`/categoria/${product.category.slug}`} className="hover:text-brand-600">
+              {product.category.name}
             </Link>
             <ChevronRight size={14} />
           </>

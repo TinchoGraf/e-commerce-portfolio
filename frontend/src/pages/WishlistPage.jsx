@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, HeartOff, ShoppingCart } from 'lucide-react';
 import * as wishlistApi from '../api/wishlist';
-import * as productsApi from '../api/products';
 import ProductGrid from '../components/product/ProductGrid';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
@@ -10,14 +9,6 @@ import EmptyState from '../components/ui/EmptyState';
 import { useCartStore } from '../stores/cartStore';
 import { useToastStore } from '../stores/toastStore';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-
-// NOTA: `GET /api/wishlist` sólo devuelve `{id, user_id, product_id, created_at}`
-// (ver `WishlistItemResponse` en el backend), sin datos del producto. Como
-// tampoco existe un endpoint para buscar productos por id (sólo por slug),
-// se usa `GET /api/products` con el máximo `page_size` permitido (100) como
-// workaround para resolver los datos de cada producto de la wishlist. Esto
-// es una limitación conocida del backend, reportada aparte, no se modifica acá.
-const PRODUCTS_LOOKUP_PAGE_SIZE = 100;
 
 export default function WishlistPage() {
   useDocumentTitle('Favoritos');
@@ -32,19 +23,11 @@ export default function WishlistPage() {
     let isMounted = true;
     setIsLoading(true);
 
-    Promise.all([
-      wishlistApi.getWishlist(),
-      productsApi.getProducts({ page_size: PRODUCTS_LOOKUP_PAGE_SIZE }),
-    ])
-      .then(([wishlistResponse, productsResponse]) => {
+    wishlistApi
+      .getWishlist()
+      .then((response) => {
         if (!isMounted) return;
-        const productsById = new Map(
-          productsResponse.data.items.map((product) => [product.id, product]),
-        );
-        const matched = wishlistResponse.data
-          .map((item) => productsById.get(item.product_id))
-          .filter(Boolean);
-        setProducts(matched);
+        setProducts(response.data.map((item) => item.product));
       })
       .catch(() => {
         if (isMounted) setProducts([]);

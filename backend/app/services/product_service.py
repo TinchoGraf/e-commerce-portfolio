@@ -22,6 +22,7 @@ from app.models.product_variant import ProductVariant
 from app.schemas.product import (
     ProductCreate,
     ProductImageCreate,
+    ProductListResponse,
     ProductUpdate,
     ProductVariantCreate,
     ProductVariantUpdate,
@@ -36,6 +37,31 @@ _SORT_COLUMNS: dict[str, Any] = {
     "avg_rating": Product.avg_rating,
     "review_count": Product.review_count,
 }
+
+
+def to_list_response(product: Product) -> ProductListResponse:
+    """Mapea un `Product` ORM a `ProductListResponse`, calculando `primary_image_url`.
+
+    Toma la imagen marcada como `is_primary=True`, o la primera imagen
+    disponible si ninguna lo está, o `None` si el producto no tiene imágenes.
+    Requiere que `product.images` ya esté precargado (`selectinload`).
+    """
+    images = list(product.images) if product.images else []
+    primary_image = next((img for img in images if img.is_primary), None)
+    primary_image_url = primary_image.url if primary_image else (images[0].url if images else None)
+
+    return ProductListResponse(
+        id=product.id,
+        name=product.name,
+        slug=product.slug,
+        price=product.price,
+        compare_at_price=product.compare_at_price,
+        is_featured=product.is_featured,
+        avg_rating=product.avg_rating,
+        review_count=product.review_count,
+        stock=product.stock,
+        primary_image_url=primary_image_url,
+    )
 
 
 async def list_products(

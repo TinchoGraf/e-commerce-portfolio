@@ -13,11 +13,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
+from app.models.wishlist import WishlistItem
 from app.schemas.common import MessageResponse
 from app.schemas.wishlist import WishlistItemCreate, WishlistItemResponse
-from app.services import wishlist_service
+from app.services import product_service, wishlist_service
 
 router = APIRouter(tags=["wishlist"])
+
+
+def _to_response(item: WishlistItem) -> WishlistItemResponse:
+    """Mapea un `WishlistItem` ORM a `WishlistItemResponse`, incluyendo el
+    producto (requiere `item.product` e `item.product.images` precargados).
+    """
+    return WishlistItemResponse(
+        id=item.id,
+        user_id=item.user_id,
+        product_id=item.product_id,
+        created_at=item.created_at,
+        product=product_service.to_list_response(item.product),
+    )
 
 
 @router.get("", response_model=list[WishlistItemResponse])
@@ -27,7 +41,7 @@ async def get_wishlist(
 ) -> list[WishlistItemResponse]:
     """Lista los ítems de la wishlist del usuario autenticado."""
     items = await wishlist_service.get_wishlist(db, current_user.id)
-    return [WishlistItemResponse.model_validate(item) for item in items]
+    return [_to_response(item) for item in items]
 
 
 @router.post("", response_model=WishlistItemResponse, status_code=status.HTTP_201_CREATED)
@@ -38,9 +52,7 @@ async def add_to_wishlist(
 ) -> WishlistItemResponse:
     """Agrega un producto a la wishlist del usuario autenticado."""
     item = await wishlist_service.add_to_wishlist(db, current_user.id, data)
-    await db.commit()
-    await db.refresh(item)
-    return WishlistItemResponse.model_validate(item)
+    return _to_response(item)
 
 
 @router.delete("/{product_id}", response_model=MessageResponse)

@@ -13,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dependencies.auth import get_current_admin
-from app.models.product import Product
 from app.models.user import User
 from app.schemas.common import MessageResponse
 from app.schemas.product import (
@@ -21,7 +20,6 @@ from app.schemas.product import (
     ProductCreate,
     ProductImageCreate,
     ProductImageResponse,
-    ProductListResponse,
     ProductResponse,
     ProductUpdate,
     ProductVariantCreate,
@@ -31,30 +29,6 @@ from app.schemas.product import (
 from app.services import product_service
 
 router = APIRouter(tags=["products"])
-
-
-def _to_list_response(product: Product) -> ProductListResponse:
-    """Mapea un `Product` ORM a `ProductListResponse`, calculando `primary_image_url`.
-
-    Toma la imagen marcada como `is_primary=True`, o la primera imagen
-    disponible si ninguna lo está, o `None` si el producto no tiene imágenes.
-    """
-    images = list(product.images) if product.images else []
-    primary_image = next((img for img in images if img.is_primary), None)
-    primary_image_url = primary_image.url if primary_image else (images[0].url if images else None)
-
-    return ProductListResponse(
-        id=product.id,
-        name=product.name,
-        slug=product.slug,
-        price=product.price,
-        compare_at_price=product.compare_at_price,
-        is_featured=product.is_featured,
-        avg_rating=product.avg_rating,
-        review_count=product.review_count,
-        stock=product.stock,
-        primary_image_url=primary_image_url,
-    )
 
 
 @router.get("", response_model=PaginatedProductResponse)
@@ -86,7 +60,7 @@ async def list_products(
         page_size=page_size,
     )
     return PaginatedProductResponse(
-        items=[_to_list_response(product) for product in result["items"]],
+        items=[product_service.to_list_response(product) for product in result["items"]],
         total=result["total"],
         page=result["page"],
         page_size=result["page_size"],
@@ -96,9 +70,13 @@ async def list_products(
 
 @router.get("/{slug}", response_model=ProductResponse)
 async def get_product(slug: str, db: AsyncSession = Depends(get_db)) -> ProductResponse:
-    """Obtiene el detalle de un producto activo por su slug."""
+    """Obtiene el detalle de un producto activo por su slug, con imágenes,
+    variantes activas, categoría y marca.
+    """
     product = await product_service.get_product_by_slug(db, slug)
-    return ProductResponse.model_validate(product)
+    response = ProductResponse.model_validate(product)
+    response.variants = [ProductVariantResponse.model_validate(v) for v in product.active_variants]
+    return response
 
 
 @router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)

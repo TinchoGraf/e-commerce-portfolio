@@ -29,6 +29,16 @@ E-commerce completo de productos de tecnología.
   (55 endpoints en total). Fixes aplicados de Fase 1: validación de password en `UserCreate`,
   índice parcial en `cart_items` para evitar duplicados con `variant_id IS NULL`, `graphify-out/`
   excluido del repo.
+- **Fixes post-Fase 3** (detectados construyendo el frontend, resueltos después de 3C):
+  `ProductResponse` ahora incluye `images`, `variants`, `category` y `brand` anidados (antes sólo
+  tenía campos escalares, aunque el service ya precargaba esas relaciones); el detalle público
+  (`GET /products/{slug}`) filtra `variants` a sólo las activas. `WishlistItemResponse` ahora
+  incluye `product: ProductListResponse` anidado (antes sólo `{id, user_id, product_id,
+  created_at}`). Se extrajo `product_service.to_list_response()` como helper compartido (antes vivía
+  duplicado como función privada del router de products) para armar ese `ProductListResponse` con
+  `primary_image_url` calculado, reusado ahora también por el router de wishlist. De paso se corrigió
+  un double-commit en `POST /wishlist` (mismo patrón que ya se había arreglado en el router de
+  products al principio de la Fase 3A).
 
 ### Endpoints implementados (prefix `/api`)
 - `auth`: register, login, me
@@ -77,26 +87,20 @@ para que el checkout completo se pueda demostrar en el portfolio.
   - **3C**: páginas secundarias — checkout multi-step (`AddressStep`/`ReviewStep`/`PaymentStep` vía
     `CheckoutPage`, con `CheckoutSuccessPage` post-pago), `ProfilePage` (datos de cuenta + gestión de
     direcciones), `OrdersPage`/`OrderDetailPage` (historial y detalle con snapshot de dirección de
-    envío), `WishlistPage` (con workaround client-side por el gap de `WishlistItemResponse`, ver
-    abajo). Cierre con pasada de UX/accesibilidad: fixes de contraste AA, navegación por teclado
-    (Escape en dropdowns), ARIA en tabs/botones-ícono, áreas táctiles 44×44px, scroll-to-top en
-    cambio de ruta, `prefers-reduced-motion`, "vaciar carrito" y "eliminar reseña propia" agregados.
+    envío), `WishlistPage`. Cierre con pasada de UX/accesibilidad: fixes de contraste AA, navegación
+    por teclado (Escape en dropdowns), ARIA en tabs/botones-ícono, áreas táctiles 44×44px,
+    scroll-to-top en cambio de ruta, `prefers-reduced-motion`, "vaciar carrito" y "eliminar reseña
+    propia" agregados.
+  - **Post-3C**: fix de dos gaps de datos del backend detectados durante la Fase 3 (ver Fase 2 más
+    abajo) — `ProductResponse` y `WishlistItemResponse` ahora devuelven sus relaciones anidadas.
+    `ProductPage` ya no necesita fallback a placeholder para galería/variantes y ya no resuelve la
+    categoría del breadcrumb con un fetch aparte; `WishlistPage` ya no usa el workaround de
+    `GET /products?page_size=100` — consume `item.product` directo de `GET /wishlist`.
 
 ### Rutas del frontend
 `/` (Home), `/catalogo`, `/categoria/:slug`, `/producto/:slug`, `/carrito`, `/login`, `/registro`,
 `/checkout` (protegida), `/checkout/exito`, `/perfil` (protegida), `/pedidos` (protegida),
 `/pedidos/:id` (protegida), `/favoritos` (protegida), `*` → 404.
-
-### Gaps de datos conocidos en el backend (pendientes, no bloquean Fase 3)
-Encontrados durante la Fase 3 — el service ya precarga las relaciones ORM necesarias, pero el schema
-Pydantic de respuesta no las expone, así que el frontend no puede mostrarlas aunque existan en la DB:
-- `ProductResponse` (`app/schemas/product.py`) no expone `images`, `variants`, `category`, `brand`
-  anidados → `ProductPage` no puede renderizar galería real ni selector de variantes.
-- `WishlistItemResponse` (`app/schemas/wishlist.py`) solo expone `{id, user_id, product_id,
-  created_at}`, sin datos del producto → `WishlistPage` resuelve con un workaround (`GET
-  /products?page_size=100` y cruce por id en el cliente), que no escala más allá de un catálogo
-  chico. Tampoco existe `GET /products/{id}` (solo por `slug`).
-- Ambos quedaron pendientes de decisión del usuario para una futura fase de fixes de backend.
 
 ## Decisiones de arquitectura
 - SQLAlchemy 2.0 estilo moderno (`mapped_column`), no legacy `Column()`.

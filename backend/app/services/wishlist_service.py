@@ -32,7 +32,12 @@ async def add_to_wishlist(db: AsyncSession, user_id: uuid.UUID, data: WishlistIt
 
     Lanza 404 si el producto no existe y 409 si ya estaba en la wishlist.
     """
-    product = await db.get(Product, data.product_id)
+    stmt = (
+        select(Product)
+        .options(selectinload(Product.images))
+        .where(Product.id == data.product_id)
+    )
+    product = (await db.execute(stmt)).scalar_one_or_none()
     if product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
 
@@ -49,6 +54,7 @@ async def add_to_wishlist(db: AsyncSession, user_id: uuid.UUID, data: WishlistIt
     db.add(wishlist_item)
     await db.commit()
     await db.refresh(wishlist_item)
+    wishlist_item.product = product
     return wishlist_item
 
 
