@@ -86,10 +86,15 @@ async def add_to_cart(db: AsyncSession, user_id: uuid.UUID, data: CartItemCreate
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La variante no está activa")
         available_stock = variant.stock
 
+    if data.variant_id is not None:
+        variant_condition = CartItem.variant_id == data.variant_id
+    else:
+        variant_condition = CartItem.variant_id.is_(None)
+
     stmt = select(CartItem).where(
         CartItem.user_id == user_id,
         CartItem.product_id == data.product_id,
-        CartItem.variant_id == data.variant_id,
+        variant_condition,
     )
     existing = (await db.execute(stmt)).scalar_one_or_none()
 

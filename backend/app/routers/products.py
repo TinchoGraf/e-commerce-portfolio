@@ -109,8 +109,6 @@ async def create_product(
 ) -> ProductResponse:
     """Crea un producto nuevo (sólo admin)."""
     product = await product_service.create_product(db, data)
-    await db.commit()
-    await db.refresh(product)
     return ProductResponse.model_validate(product)
 
 
@@ -123,8 +121,6 @@ async def update_product(
 ) -> ProductResponse:
     """Actualiza parcialmente un producto (sólo admin)."""
     product = await product_service.update_product(db, product_id, data)
-    await db.commit()
-    await db.refresh(product)
     return ProductResponse.model_validate(product)
 
 
@@ -136,7 +132,6 @@ async def delete_product(
 ) -> MessageResponse:
     """Da de baja un producto (soft delete, sólo admin)."""
     await product_service.delete_product(db, product_id)
-    await db.commit()
     return MessageResponse(message="Producto eliminado correctamente")
 
 
@@ -153,8 +148,6 @@ async def add_product_image(
 ) -> ProductImageResponse:
     """Agrega una imagen a la galería de un producto (sólo admin)."""
     image = await product_service.add_product_image(db, product_id, data)
-    await db.commit()
-    await db.refresh(image)
     return ProductImageResponse.model_validate(image)
 
 
@@ -183,8 +176,6 @@ async def add_product_variant(
 ) -> ProductVariantResponse:
     """Crea una variante para un producto (sólo admin)."""
     variant = await product_service.add_product_variant(db, product_id, data)
-    await db.commit()
-    await db.refresh(variant)
     return ProductVariantResponse.model_validate(variant)
 
 
@@ -197,8 +188,6 @@ async def update_product_variant(
 ) -> ProductVariantResponse:
     """Actualiza parcialmente una variante de producto (sólo admin)."""
     variant = await product_service.update_product_variant(db, variant_id, data)
-    await db.commit()
-    await db.refresh(variant)
     return ProductVariantResponse.model_validate(variant)
 
 
@@ -210,5 +199,4 @@ async def delete_product_variant(
 ) -> MessageResponse:
     """Da de baja una variante de producto (soft delete, sólo admin)."""
     await product_service.delete_product_variant(db, variant_id)
-    await db.commit()
     return MessageResponse(message="Variante eliminada correctamente")

@@ -3,6 +3,7 @@
 import uuid
 from datetime import datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -10,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 class CouponCreate(BaseModel):
     code: str
     description: str | None = None
-    discount_type: str  # "percentage" | "fixed"
+    discount_type: Literal["percentage", "fixed"]
     discount_value: Decimal = Field(gt=0)
     min_purchase_amount: Decimal | None = None
     max_discount_amount: Decimal | None = None
@@ -30,7 +31,7 @@ class CouponCreate(BaseModel):
 
 class CouponUpdate(BaseModel):
     description: str | None = None
-    discount_type: str | None = None
+    discount_type: Literal["percentage", "fixed"] | None = None
     discount_value: Decimal | None = None
     min_purchase_amount: Decimal | None = None
     max_discount_amount: Decimal | None = None
