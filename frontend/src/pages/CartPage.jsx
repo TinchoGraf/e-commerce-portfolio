@@ -27,6 +27,8 @@ export default function CartPage() {
   const isLoading = useCartStore((state) => state.isLoading);
   const updateItemQuantity = useCartStore((state) => state.updateItemQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const [isClearing, setIsClearing] = useState(false);
 
   const [pendingQuantities, setPendingQuantities] = useState({});
   const debounceTimers = useRef({});
@@ -127,6 +129,19 @@ export default function CartPage() {
     localStorage.removeItem(COUPON_STORAGE_KEY);
   }
 
+  async function handleClearCart() {
+    if (!window.confirm('¿Vaciar el carrito? Se eliminarán todos los productos.')) return;
+    setIsClearing(true);
+    try {
+      await clearCart();
+      addToast('Carrito vaciado', 'success');
+    } catch {
+      addToast('No se pudo vaciar el carrito', 'error');
+    } finally {
+      setIsClearing(false);
+    }
+  }
+
   function handleCheckout() {
     if (isAuthenticated) {
       navigate('/checkout');
@@ -162,9 +177,21 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-6 font-display text-2xl font-semibold text-ink sm:text-3xl">
-        Carrito de compras
-      </h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
+          Carrito de compras
+        </h1>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          loading={isClearing}
+          onClick={handleClearCart}
+          className="text-red-600 hover:bg-red-50"
+        >
+          Vaciar carrito
+        </Button>
+      </div>
 
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="min-w-0 flex-1 rounded-xl border border-ink-soft/10 bg-white p-4 sm:p-5 lg:w-[65%] lg:flex-none">

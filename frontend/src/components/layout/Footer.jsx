@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
         <div>
           <p className="font-display text-xl font-bold text-brand-700">
-            Tech<span className="text-accent-500">Store</span>
+            Tech<span className="text-accent-600">Store</span>
           </p>
           <p className="mt-3 text-sm text-ink-soft">
             Tienda de tecnología con lo último en dispositivos y accesorios. Proyecto de
@@ -34,19 +34,28 @@ export default function Footer() {
           <h3 className="text-sm font-semibold text-ink">Ayuda</h3>
           <ul className="mt-3 flex flex-col gap-2 text-sm text-ink-soft">
             <li>
-              <a href="#" className="hover:text-brand-600">
+              <span
+                title="Próximamente disponible"
+                className="cursor-default text-ink-soft/60"
+              >
                 Preguntas frecuentes
-              </a>
+              </span>
             </li>
             <li>
-              <a href="#" className="hover:text-brand-600">
+              <span
+                title="Próximamente disponible"
+                className="cursor-default text-ink-soft/60"
+              >
                 Contacto
-              </a>
+              </span>
             </li>
             <li>
-              <a href="#" className="hover:text-brand-600">
+              <span
+                title="Próximamente disponible"
+                className="cursor-default text-ink-soft/60"
+              >
                 Términos y condiciones
-              </a>
+              </span>
             </li>
           </ul>
         </div>

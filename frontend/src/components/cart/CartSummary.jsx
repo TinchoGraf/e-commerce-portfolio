@@ -42,12 +42,12 @@ export default function CartSummary({
         </div>
         <div className="flex justify-between text-ink-soft">
           <span>Envío</span>
-          <span className={clsx(shippingCost === 0 && 'font-medium text-emerald-600')}>
+          <span className={clsx(shippingCost === 0 && 'font-medium text-emerald-700')}>
             {shippingCost === 0 ? 'Envío gratis' : formatPrice(shippingCost)}
           </span>
         </div>
         {discount > 0 && (
-          <div className="flex justify-between text-emerald-600">
+          <div className="flex justify-between text-emerald-700">
             <span>Descuento{couponCode ? ` (${couponCode})` : ''}</span>
             <span>-{formatPrice(discount)}</span>
           </div>

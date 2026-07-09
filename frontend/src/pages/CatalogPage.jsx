@@ -257,7 +257,9 @@ export default function CatalogPage() {
         <button
           type="button"
           onClick={() => setFiltersOpen((open) => !open)}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-ink-soft/20 px-3.5 py-2 text-sm font-medium text-ink lg:hidden"
+          aria-expanded={filtersOpen}
+          aria-controls="catalog-filters"
+          className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-ink-soft/20 px-3.5 py-2 text-sm font-medium text-ink lg:hidden"
         >
           {filtersOpen ? <X size={16} /> : <SlidersHorizontal size={16} />}
           Filtros
@@ -266,6 +268,7 @@ export default function CatalogPage() {
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <aside
+          id="catalog-filters"
           className={clsx(
             'w-full shrink-0 lg:block lg:w-[250px]',
             filtersOpen ? 'block' : 'hidden',
@@ -322,6 +325,7 @@ export default function CatalogPage() {
                 <Input
                   type="number"
                   placeholder="Mín"
+                  aria-label="Precio mínimo"
                   value={minPriceInput}
                   onChange={(event) => setMinPriceInput(event.target.value)}
                   onBlur={handlePriceApply}
@@ -330,6 +334,7 @@ export default function CatalogPage() {
                 <Input
                   type="number"
                   placeholder="Máx"
+                  aria-label="Precio máximo"
                   value={maxPriceInput}
                   onChange={(event) => setMaxPriceInput(event.target.value)}
                   onBlur={handlePriceApply}
@@ -353,6 +358,7 @@ export default function CatalogPage() {
             </p>
             <select
               value={currentSortValue}
+              aria-label="Ordenar por"
               onChange={(event) => {
                 const option = SORT_OPTIONS.find((item) => item.value === event.target.value);
                 updateParams({ sort_by: option.sort_by, sort_order: option.sort_order });

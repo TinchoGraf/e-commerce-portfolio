@@ -8,6 +8,13 @@ import ProductPage from './pages/ProductPage';
 import CartPage from './pages/CartPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import CheckoutPage from './pages/CheckoutPage';
+import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
+import ProfilePage from './pages/ProfilePage';
+import OrdersPage from './pages/OrdersPage';
+import OrderDetailPage from './pages/OrderDetailPage';
+import WishlistPage from './pages/WishlistPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -34,14 +41,14 @@ function App() {
           <Route path="registro" element={<RegisterPage />} />
 
           {/* Fase 3C — checkout */}
-          {/* <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} /> */}
-          {/* <Route path="checkout/exito" element={<ProtectedRoute><CheckoutSuccessPage /></ProtectedRoute>} /> */}
+          <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+          <Route path="checkout/exito" element={<CheckoutSuccessPage />} />
 
           {/* Fase 3C — área de usuario */}
-          {/* <Route path="perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} /> */}
-          {/* <Route path="pedidos" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} /> */}
-          {/* <Route path="pedidos/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} /> */}
-          {/* <Route path="favoritos" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} /> */}
+          <Route path="perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="pedidos" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+          <Route path="pedidos/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
+          <Route path="favoritos" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

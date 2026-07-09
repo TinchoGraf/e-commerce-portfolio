@@ -107,7 +107,7 @@ export default function RegisterForm({ onSuccess, className }) {
                 key={rule.key}
                 className={clsx(
                   'flex items-center gap-1.5 text-xs',
-                  passes ? 'text-emerald-600' : 'text-ink-soft',
+                  passes ? 'text-emerald-700' : 'text-ink-soft',
                 )}
               >
                 {passes ? <Check size={14} /> : <X size={14} />}

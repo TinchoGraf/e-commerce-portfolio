@@ -267,7 +267,12 @@ export default function ProductPage() {
         <div className="flex flex-col gap-4">
           <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">{product.name}</h1>
 
-          <button type="button" onClick={scrollToReviews} className="w-fit cursor-pointer">
+          <button
+            type="button"
+            onClick={scrollToReviews}
+            aria-label={`Ver ${product.review_count} reseñas`}
+            className="w-fit cursor-pointer"
+          >
             <StarRating rating={product.avg_rating} count={product.review_count} />
           </button>
 
@@ -299,7 +304,7 @@ export default function ProductPage() {
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               aria-label="Disminuir cantidad"
               disabled={quantity <= 1}
-              className="cursor-pointer p-2.5 text-ink hover:bg-surface-alt disabled:cursor-not-allowed disabled:text-ink-soft/40"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center text-ink hover:bg-surface-alt disabled:cursor-not-allowed disabled:text-ink-soft/40"
             >
               <Minus size={16} />
             </button>
@@ -309,7 +314,7 @@ export default function ProductPage() {
               onClick={() => setQuantity((q) => Math.min(displayStock || 1, q + 1))}
               aria-label="Aumentar cantidad"
               disabled={quantity >= displayStock}
-              className="cursor-pointer p-2.5 text-ink hover:bg-surface-alt disabled:cursor-not-allowed disabled:text-ink-soft/40"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center text-ink hover:bg-surface-alt disabled:cursor-not-allowed disabled:text-ink-soft/40"
             >
               <Plus size={16} />
             </button>
@@ -337,7 +342,7 @@ export default function ProductPage() {
               <Heart
                 size={20}
                 fill={isWishlisted ? 'currentColor' : 'none'}
-                className={isWishlisted ? 'text-accent-500' : ''}
+                className={isWishlisted ? 'text-accent-600' : ''}
               />
             </button>
           </div>
@@ -347,9 +352,13 @@ export default function ProductPage() {
       </div>
 
       <div className="mt-14">
-        <div className="flex gap-6 border-b border-ink-soft/10">
+        <div role="tablist" aria-label="Información del producto" className="flex gap-6 border-b border-ink-soft/10">
           <button
             type="button"
+            role="tab"
+            id="tab-description"
+            aria-selected={activeTab === 'description'}
+            aria-controls="panel-description"
             onClick={() => setActiveTab('description')}
             className={clsx(
               'border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
@@ -362,6 +371,10 @@ export default function ProductPage() {
           </button>
           <button
             type="button"
+            role="tab"
+            id="tab-reviews"
+            aria-selected={activeTab === 'reviews'}
+            aria-controls="reviews"
             onClick={() => setActiveTab('reviews')}
             className={clsx(
               'border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
@@ -375,12 +388,22 @@ export default function ProductPage() {
         </div>
 
         {activeTab === 'description' && (
-          <div className="max-w-3xl py-6 text-sm leading-relaxed text-ink-soft">
+          <div
+            id="panel-description"
+            role="tabpanel"
+            aria-labelledby="tab-description"
+            className="max-w-3xl py-6 text-sm leading-relaxed text-ink-soft"
+          >
             {product.description || product.short_description || 'Sin descripción disponible.'}
           </div>
         )}
 
-        <div id="reviews" className={clsx('flex flex-col gap-8 py-6', activeTab !== 'reviews' && 'hidden')}>
+        <div
+          id="reviews"
+          role="tabpanel"
+          aria-labelledby="tab-reviews"
+          className={clsx('flex flex-col gap-8 py-6', activeTab !== 'reviews' && 'hidden')}
+        >
           <ReviewList
             productId={product.id}
             avgRating={Number(product.avg_rating)}

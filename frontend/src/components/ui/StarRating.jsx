@@ -36,7 +36,7 @@ export default function StarRating({
               onClick={() => onChange(starValue)}
               onMouseEnter={() => setHoverValue(starValue)}
               onMouseLeave={() => setHoverValue(0)}
-              className="cursor-pointer text-accent-500"
+              className="cursor-pointer text-accent-600"
               aria-label={`Calificar con ${starValue} estrella${starValue > 1 ? 's' : ''}`}
             >
               <Star
@@ -55,7 +55,7 @@ export default function StarRating({
 
   return (
     <div className={clsx('inline-flex items-center gap-1.5', className)}>
-      <div className="inline-flex items-center gap-0.5 text-accent-500">
+      <div className="inline-flex items-center gap-0.5 text-accent-600">
         {STAR_INDEXES.map((index) => {
           const percent = starFillPercent(safeRating, index);
           return (

@@ -44,6 +44,16 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    function handleEscape(event) {
+      if (event.key !== 'Escape') return;
+      setUserMenuOpen(false);
+      setMobileMenuOpen(false);
+    }
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
   function handleSearchSubmit(event) {
     if (event.key !== 'Enter') return;
     const trimmed = searchTerm.trim();
@@ -69,7 +79,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-ink-soft/10 bg-surface/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1280px] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="shrink-0 font-display text-2xl font-bold text-brand-700">
-          Tech<span className="text-accent-500">Store</span>
+          Tech<span className="text-accent-600">Store</span>
         </Link>
 
         <div className="hidden flex-1 md:block">
@@ -107,11 +117,11 @@ export default function Header() {
             type="button"
             onClick={() => navigate('/carrito')}
             aria-label="Ver carrito"
-            className="relative cursor-pointer rounded-full p-2 text-ink hover:bg-surface-alt"
+            className="relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink hover:bg-surface-alt"
           >
             <ShoppingCart size={22} />
             {itemCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute right-1 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-bold text-white">
                 {itemCount}
               </span>
             )}
@@ -122,7 +132,9 @@ export default function Header() {
               type="button"
               onClick={handleUserIconClick}
               aria-label="Cuenta de usuario"
-              className="cursor-pointer rounded-full p-2 text-ink hover:bg-surface-alt"
+              aria-haspopup="true"
+              aria-expanded={userMenuOpen}
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink hover:bg-surface-alt"
             >
               <User size={22} />
             </button>
@@ -163,8 +175,9 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-label="Abrir menú"
-            className="cursor-pointer rounded-full p-2 text-ink hover:bg-surface-alt md:hidden"
+            aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={mobileMenuOpen}
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink hover:bg-surface-alt md:hidden"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>

@@ -14,8 +14,8 @@ E-commerce completo de productos de tecnología.
 ## Fases planificadas
 1. Cimientos: schema de BD completo, estructura FastAPI, auth JWT (register/login/me) — DONE
 2. Core del negocio (productos, categorías, marcas, carrito, checkout, pagos) — DONE
-3. Frontend (React/Vite/Tailwind)
-4. Órdenes, checkout, cupones, reviews, wishlist (nota: gran parte ya se adelantó en Fase 2)
+3. Frontend (React/Vite/Tailwind) — DONE (3A + 3B + 3C)
+4. Panel de administración
 5. Rate limiting, seguridad avanzada
 6. Deploy (Docker, CI/CD)
 
@@ -58,7 +58,45 @@ Pagos: si `MERCADOPAGO_ACCESS_TOKEN` no está seteado, `payment_service` cae a u
 (`/api/payments/mock-checkout/{order_id}`) que aprueba el pago sin depender de credenciales reales,
 para que el checkout completo se pueda demostrar en el portfolio.
 
-- **Próximo paso: Fase 3** — Frontend (React/Vite/Tailwind).
+- **Fase 3 completada** (React 19 / Vite / Tailwind v4), dividida en 3 partes:
+  - **3A**: setup del proyecto (Vite+React+Tailwind v4, react-router-dom, axios, zustand, lucide-react,
+    clsx), capa de API (`src/api/`: 11 módulos por recurso + `client.js` con interceptor JWT), stores
+    Zustand (`authStore`, `cartStore` con soporte local/backend dual, `toastStore`), componentes UI
+    base (`Button`, `Input`, `Badge`, `Spinner`, `EmptyState`, `StarRating`, `Pagination`, `Toast`),
+    `ProductCard`/`ProductGrid`, `ProtectedRoute`, layout (`Header` sticky + `Footer` + `Layout`),
+    `HomePage` (hero, categorías, destacados, banner promo, nuevos) y `NotFoundPage`. Paleta propia
+    (neutro cálido + acento violeta/índigo + acento secundario coral/naranja) y tipografía Space
+    Grotesk (headings) + Inter (body), configuradas en el `@theme` de `src/index.css` (Tailwind v4
+    CSS-first, sin `tailwind.config.js`).
+  - **3B**: páginas core — `CatalogPage` (filtros por URL con `useSearchParams`, sidebar de
+    categorías/marcas/precio, orden, paginación), `ProductPage` (galería, selector de variantes,
+    reviews, wishlist toggle), `CartPage` (debounce + optimistic update de cantidad, cupón, resumen),
+    `LoginPage`/`RegisterPage` con merge de carrito local→backend al autenticar. Componentes nuevos:
+    `ProductGallery`, `VariantSelector`, `ReviewList`/`ReviewForm`, `CartItem`/`CartSummary`,
+    `LoginForm`/`RegisterForm`.
+  - **3C**: páginas secundarias — checkout multi-step (`AddressStep`/`ReviewStep`/`PaymentStep` vía
+    `CheckoutPage`, con `CheckoutSuccessPage` post-pago), `ProfilePage` (datos de cuenta + gestión de
+    direcciones), `OrdersPage`/`OrderDetailPage` (historial y detalle con snapshot de dirección de
+    envío), `WishlistPage` (con workaround client-side por el gap de `WishlistItemResponse`, ver
+    abajo). Cierre con pasada de UX/accesibilidad: fixes de contraste AA, navegación por teclado
+    (Escape en dropdowns), ARIA en tabs/botones-ícono, áreas táctiles 44×44px, scroll-to-top en
+    cambio de ruta, `prefers-reduced-motion`, "vaciar carrito" y "eliminar reseña propia" agregados.
+
+### Rutas del frontend
+`/` (Home), `/catalogo`, `/categoria/:slug`, `/producto/:slug`, `/carrito`, `/login`, `/registro`,
+`/checkout` (protegida), `/checkout/exito`, `/perfil` (protegida), `/pedidos` (protegida),
+`/pedidos/:id` (protegida), `/favoritos` (protegida), `*` → 404.
+
+### Gaps de datos conocidos en el backend (pendientes, no bloquean Fase 3)
+Encontrados durante la Fase 3 — el service ya precarga las relaciones ORM necesarias, pero el schema
+Pydantic de respuesta no las expone, así que el frontend no puede mostrarlas aunque existan en la DB:
+- `ProductResponse` (`app/schemas/product.py`) no expone `images`, `variants`, `category`, `brand`
+  anidados → `ProductPage` no puede renderizar galería real ni selector de variantes.
+- `WishlistItemResponse` (`app/schemas/wishlist.py`) solo expone `{id, user_id, product_id,
+  created_at}`, sin datos del producto → `WishlistPage` resuelve con un workaround (`GET
+  /products?page_size=100` y cruce por id en el cliente), que no escala más allá de un catálogo
+  chico. Tampoco existe `GET /products/{id}` (solo por `slug`).
+- Ambos quedaron pendientes de decisión del usuario para una futura fase de fixes de backend.
 
 ## Decisiones de arquitectura
 - SQLAlchemy 2.0 estilo moderno (`mapped_column`), no legacy `Column()`.

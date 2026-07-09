@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import ProductCard from './ProductCard';
 
-export default function ProductGrid({ products, className }) {
+export default function ProductGrid({ products, renderActions, className }) {
   return (
     <div
       className={clsx(
@@ -10,7 +10,11 @@ export default function ProductGrid({ products, className }) {
       )}
     >
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          actions={renderActions ? renderActions(product) : undefined}
+        />
       ))}
     </div>
   );

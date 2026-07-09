@@ -137,19 +137,22 @@ export default function HomePage() {
 
       {/* Banner promocional */}
       <section className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-4 rounded-2xl bg-gradient-to-r from-accent-500 to-accent-600 p-8 text-white sm:grid-cols-2 sm:p-12">
+        <div className="grid grid-cols-1 gap-4 rounded-2xl bg-gradient-to-r from-accent-500 to-accent-600 p-8 text-ink sm:grid-cols-2 sm:p-12">
+          {/* Nota de contraste: sobre este degradé claro, el texto blanco/accent-50
+              no alcanza 4.5:1 (falla WCAG AA). Se usa text-ink, que sí cumple
+              en todo el rango del degradé (accent-500 → accent-600). */}
           <div className="flex items-center gap-4">
             <Truck size={36} strokeWidth={1.5} />
             <div>
               <p className="font-display text-xl font-bold">Envío gratis</p>
-              <p className="text-accent-50">En compras mayores a $50.000</p>
+              <p className="text-ink">En compras mayores a $50.000</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <CreditCard size={36} strokeWidth={1.5} />
             <div>
               <p className="font-display text-xl font-bold">Hasta 12 cuotas</p>
-              <p className="text-accent-50">Sin interés con tarjetas seleccionadas</p>
+              <p className="text-ink">Sin interés con tarjetas seleccionadas</p>
             </div>
           </div>
         </div>

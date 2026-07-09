@@ -42,7 +42,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove, className }
               onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
               aria-label="Disminuir cantidad"
               disabled={item.quantity <= 1}
-              className="cursor-pointer p-2 text-ink hover:bg-surface-alt disabled:cursor-not-allowed disabled:text-ink-soft/40"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center text-ink hover:bg-surface-alt disabled:cursor-not-allowed disabled:text-ink-soft/40"
             >
               <Minus size={14} />
             </button>
@@ -51,7 +51,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove, className }
               type="button"
               onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
               aria-label="Aumentar cantidad"
-              className="cursor-pointer p-2 text-ink hover:bg-surface-alt"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center text-ink hover:bg-surface-alt"
             >
               <Plus size={14} />
             </button>
@@ -65,7 +65,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove, className }
             type="button"
             onClick={() => onRemove(item.id)}
             aria-label="Eliminar del carrito"
-            className="cursor-pointer p-2 text-ink-soft hover:text-red-600"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center text-ink-soft hover:text-red-600"
           >
             <Trash2 size={18} />
           </button>

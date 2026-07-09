@@ -5,7 +5,7 @@ import Badge from '../ui/Badge';
 import StarRating from '../ui/StarRating';
 import { formatPrice, calculateDiscountPercent } from '../../utils/formatters';
 
-export default function ProductCard({ product, className }) {
+export default function ProductCard({ product, actions, className }) {
   const discountPercent = calculateDiscountPercent(product.price, product.compare_at_price);
   const outOfStock = product.stock <= 0;
 
@@ -60,9 +60,15 @@ export default function ProductCard({ product, className }) {
         </div>
 
         {!outOfStock && product.stock <= 5 && (
-          <span className="text-xs font-medium text-accent-600">
+          <span className="text-xs font-medium text-accent-700">
             Últimas {product.stock} unidades
           </span>
+        )}
+
+        {actions && (
+          <div onClick={(event) => event.stopPropagation()} className="mt-2 flex gap-2">
+            {actions}
+          </div>
         )}
       </div>
     </Link>
