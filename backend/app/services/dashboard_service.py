@@ -167,6 +167,18 @@ async def get_dashboard_metrics(db: AsyncSession) -> dict[str, Any]:
 
     Incluye resumen general, ventas de los últimos 30 días, top de productos
     más vendidos, productos con stock bajo y las últimas órdenes recibidas.
+
+    NOTA sobre paralelización: las 5 sub-consultas de abajo se ejecutan
+    secuencialmente a propósito, NO con `asyncio.gather`. `db` es una única
+    `AsyncSession` inyectada por request (`Depends(get_db)`), y una
+    `AsyncSession` de SQLAlchemy no es segura para ejecutar múltiples
+    `await db.execute(...)` concurrentes sobre la misma conexión: eso
+    típicamente rompe con `InterfaceError: another operation is in
+    progress` o corrompe el estado interno de la sesión. Paralelizar esto
+    requeriría abrir una sesión/conexión separada por sub-consulta (o un
+    engine con pool que lo soporte), lo cual excede el alcance de esta
+    revisión. Si el dashboard se vuelve un cuello de botella real, evaluar
+    ese rediseño en vez de envolver estas llamadas en `asyncio.gather`.
     """
     return {
         "summary": await _get_summary(db),

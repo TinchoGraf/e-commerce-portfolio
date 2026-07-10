@@ -101,7 +101,7 @@ export default function AdminCategoriesPage() {
       slug: formData.slug.trim() || undefined,
       description: formData.description.trim() || undefined,
       image_url: formData.image_url.trim() || undefined,
-      parent_id: formData.parent_id ? Number(formData.parent_id) : null,
+      parent_id: formData.parent_id || null,
       display_order: Number(formData.display_order) || 0,
       is_active: formData.is_active,
     };

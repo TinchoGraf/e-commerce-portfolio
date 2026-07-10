@@ -42,12 +42,24 @@ export default function AdminProductsPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     getCategories()
-      .then((response) => setCategories(response.data))
-      .catch(() => setCategories([]));
+      .then((response) => {
+        if (isMounted) setCategories(response.data);
+      })
+      .catch(() => {
+        if (isMounted) setCategories([]);
+      });
     getBrands()
-      .then((response) => setBrands(response.data))
-      .catch(() => setBrands([]));
+      .then((response) => {
+        if (isMounted) setBrands(response.data);
+      })
+      .catch(() => {
+        if (isMounted) setBrands([]);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {

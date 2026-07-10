@@ -63,5 +63,4 @@ async def remove_from_wishlist(
 ) -> MessageResponse:
     """Elimina un producto de la wishlist del usuario autenticado."""
     await wishlist_service.remove_from_wishlist(db, current_user.id, product_id)
-    await db.commit()
     return MessageResponse(message="Producto eliminado de la wishlist")

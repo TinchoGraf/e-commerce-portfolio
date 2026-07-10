@@ -4,6 +4,7 @@ import uuid
 from typing import Any
 
 from fastapi import HTTPException, status
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -14,6 +15,18 @@ from app.utils.slug import generate_slug
 
 # Sentinel para distinguir "no se pasó parent_id" de "se pasó parent_id=None".
 _UNSET: Any = object()
+
+
+def children_loaded(category: Category) -> bool:
+    """True si la relación `children` de la categoría ya fue precargada (`selectinload`).
+
+    Uso: evitar que el router dispare un lazy-load síncrono (que rompería en
+    un contexto async) al armar recursivamente el árbol de categorías. Esta
+    función encapsula el uso de `sqlalchemy.inspect` para que los routers no
+    necesiten importar `sqlalchemy` directamente.
+    """
+    state = sa_inspect(category)
+    return "children" not in state.unloaded
 
 
 async def list_categories(

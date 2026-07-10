@@ -8,7 +8,6 @@ schema Pydantic que corresponda.
 import uuid
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -28,11 +27,11 @@ def _to_tree_response(category: Category) -> CategoryTreeResponse:
     `list_categories`/`get_category_by_slug` sólo precargan un nivel de
     `children` (selectinload). Para evitar disparar un lazy-load síncrono
     (que rompería en un contexto async) en los nietos, se chequea si la
-    relación `children` está cargada antes de acceder a ella: si no lo
-    está, se asume lista vacía en ese nivel.
+    relación `children` está cargada antes de acceder a ella (vía
+    `category_service.children_loaded`): si no lo está, se asume lista
+    vacía en ese nivel.
     """
-    state = sa_inspect(category)
-    children = list(category.children) if "children" not in state.unloaded else []
+    children = list(category.children) if category_service.children_loaded(category) else []
 
     return CategoryTreeResponse(
         id=category.id,
@@ -77,8 +76,6 @@ async def create_category(
 ) -> CategoryResponse:
     """Crea una categoría nueva (sólo admin)."""
     category = await category_service.create_category(db, data)
-    await db.commit()
-    await db.refresh(category)
     return CategoryResponse.model_validate(category)
 
 
@@ -91,8 +88,6 @@ async def update_category(
 ) -> CategoryResponse:
     """Actualiza parcialmente una categoría (sólo admin)."""
     category = await category_service.update_category(db, category_id, data)
-    await db.commit()
-    await db.refresh(category)
     return CategoryResponse.model_validate(category)
 
 
@@ -104,5 +99,4 @@ async def delete_category(
 ) -> MessageResponse:
     """Da de baja una categoría (soft delete, sólo admin)."""
     await category_service.delete_category(db, category_id)
-    await db.commit()
     return MessageResponse(message="Categoría eliminada correctamente")

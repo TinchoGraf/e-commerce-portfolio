@@ -44,8 +44,6 @@ async def create_brand(
 ) -> BrandResponse:
     """Crea una marca nueva (sólo admin)."""
     brand = await brand_service.create_brand(db, data)
-    await db.commit()
-    await db.refresh(brand)
     return BrandResponse.model_validate(brand)
 
 
@@ -58,8 +56,6 @@ async def update_brand(
 ) -> BrandResponse:
     """Actualiza parcialmente una marca (sólo admin)."""
     brand = await brand_service.update_brand(db, brand_id, data)
-    await db.commit()
-    await db.refresh(brand)
     return BrandResponse.model_validate(brand)
 
 
@@ -71,5 +67,4 @@ async def delete_brand(
 ) -> MessageResponse:
     """Da de baja una marca (soft delete, sólo admin)."""
     await brand_service.delete_brand(db, brand_id)
-    await db.commit()
     return MessageResponse(message="Marca eliminada correctamente")

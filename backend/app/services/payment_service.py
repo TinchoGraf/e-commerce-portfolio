@@ -16,6 +16,7 @@ import logging
 import uuid
 from typing import Any
 
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -205,8 +206,6 @@ async def mock_approve_payment(db: AsyncSession, order_id: uuid.UUID) -> Order:
 
     order = await db.get(Order, order_id)
     if order is None:
-        from fastapi import HTTPException, status
-
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Orden no encontrada")
 
     return order

@@ -74,8 +74,6 @@ async def add_to_cart(
 ) -> CartItemResponse:
     """Agrega un producto (o variante) al carrito del usuario autenticado."""
     cart_item = await cart_service.add_to_cart(db, current_user.id, data)
-    await db.commit()
-    await db.refresh(cart_item)
     return CartItemResponse.model_validate(cart_item)
 
 
@@ -95,8 +93,6 @@ async def update_cart_item(
     if cart_item is None:
         return MessageResponse(message="Ítem eliminado del carrito")
 
-    await db.commit()
-    await db.refresh(cart_item)
     return CartItemResponse.model_validate(cart_item)
 
 
@@ -108,7 +104,6 @@ async def remove_from_cart(
 ) -> MessageResponse:
     """Elimina un ítem del carrito del usuario autenticado."""
     await cart_service.remove_from_cart(db, current_user.id, cart_item_id)
-    await db.commit()
     return MessageResponse(message="Ítem eliminado del carrito")
 
 

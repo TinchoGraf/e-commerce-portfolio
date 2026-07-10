@@ -141,7 +141,7 @@ export default function OrderDetailPage() {
           )}
           <div className="flex justify-between text-ink-soft">
             <span>Envío</span>
-            <span className={order.shipping_cost == 0 ? 'font-medium text-emerald-700' : 'text-ink'}>
+            <span className={Number(order.shipping_cost) === 0 ? 'font-medium text-emerald-700' : 'text-ink'}>
               {Number(order.shipping_cost) === 0 ? 'Gratis' : formatPrice(order.shipping_cost)}
             </span>
           </div>

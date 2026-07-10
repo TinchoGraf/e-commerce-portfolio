@@ -158,7 +158,6 @@ async def delete_product_image(
 ) -> MessageResponse:
     """Elimina definitivamente una imagen de producto (sólo admin)."""
     await product_service.delete_product_image(db, image_id)
-    await db.commit()
     return MessageResponse(message="Imagen eliminada correctamente")
 
 
