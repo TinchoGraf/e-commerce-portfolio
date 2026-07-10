@@ -32,5 +32,12 @@ alembic/versions/__pycache__/
 # Logs
 *.log
 
+# Tests (BD SQLite generada por la suite de pytest del backend)
+test.db
+*.db
+.coverage
+htmlcov/
+.pytest_cache/
+
 # Graphify (regenerable con `graphify update .`, pesa y crece en cada fase)
 graphify-out/
