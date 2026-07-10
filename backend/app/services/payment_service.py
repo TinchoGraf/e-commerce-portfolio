@@ -10,6 +10,8 @@ forma diferida (dentro de la función) para que el resto de la aplicación
 funcione aunque el paquete no esté instalado.
 """
 
+import hashlib
+import hmac
 import logging
 import uuid
 from typing import Any
@@ -22,6 +24,57 @@ from app.models.order import Order
 from app.utils.constants import OrderStatus, PaymentStatus
 
 logger = logging.getLogger(__name__)
+
+
+def verify_webhook_signature(
+    *,
+    x_signature: str | None,
+    x_request_id: str | None,
+    data_id: str | None,
+) -> bool:
+    """Valida la firma HMAC de un webhook de MercadoPago.
+
+    Sigue el algoritmo documentado por MercadoPago: el header
+    ``x-signature`` trae pares ``ts=<timestamp>,v1=<hash>``; el hash
+    esperado es el HMAC-SHA256 (con `MERCADOPAGO_WEBHOOK_SECRET`) del
+    "manifest" ``id:<data_id>;request-id:<x_request_id>;ts:<ts>;``.
+
+    Si `settings.MERCADOPAGO_WEBHOOK_SECRET` no está configurado (modo
+    mock/desarrollo, sin credenciales reales de MercadoPago), se omite la
+    validación y se loguea una advertencia: no hay secreto real contra el
+    cual validar. En producción con MercadoPago real, este secret SIEMPRE
+    debe estar configurado.
+    """
+    if not settings.MERCADOPAGO_WEBHOOK_SECRET:
+        logger.warning(
+            "MERCADOPAGO_WEBHOOK_SECRET no configurado: se omite la validación de "
+            "firma del webhook (esperado sólo en modo mock/desarrollo)."
+        )
+        return True
+
+    if not x_signature:
+        return False
+
+    parts: dict[str, str] = {}
+    for chunk in x_signature.split(","):
+        if "=" not in chunk:
+            continue
+        key, _, value = chunk.partition("=")
+        parts[key.strip()] = value.strip()
+
+    ts = parts.get("ts")
+    received_hash = parts.get("v1")
+    if not ts or not received_hash:
+        return False
+
+    manifest = f"id:{data_id or ''};request-id:{x_request_id or ''};ts:{ts};"
+    expected_hash = hmac.new(
+        settings.MERCADOPAGO_WEBHOOK_SECRET.encode(),
+        manifest.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+    return hmac.compare_digest(expected_hash, received_hash)
 
 
 async def create_payment_preference(db: AsyncSession, order: Order) -> dict[str, Any]:

@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "TechStore API"
     DEBUG: bool = False
     MERCADOPAGO_ACCESS_TOKEN: str = ""
+    MERCADOPAGO_WEBHOOK_SECRET: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

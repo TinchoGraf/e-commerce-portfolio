@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
+from app.middleware.rate_limiter import RateLimiterMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.routers import (
     addresses,
     auth,
@@ -37,6 +39,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(
+    RateLimiterMiddleware,
+    max_requests=100,
+    window_seconds=60,
+    auth_max_requests=10,
+    auth_window_seconds=60,
+)
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 @app.exception_handler(RequestValidationError)
