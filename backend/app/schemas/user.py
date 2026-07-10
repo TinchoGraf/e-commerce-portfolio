@@ -66,3 +66,41 @@ class Token(BaseModel):
 
     access_token: str
     token_type: str = "bearer"
+
+
+class UserAdminResponse(BaseModel):
+    """Representación de un usuario para el panel de administración."""
+
+    id: uuid.UUID
+    email: EmailStr
+    first_name: str
+    last_name: str
+    phone: str | None = None
+    role: UserRole
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedUserResponse(BaseModel):
+    """Respuesta paginada de usuarios para el listado admin."""
+
+    items: list[UserAdminResponse]
+    total: int
+    page: int
+    page_size: int
+    pages: int
+
+
+class UserRoleUpdate(BaseModel):
+    """Datos para cambiar el rol de un usuario (uso admin)."""
+
+    role: UserRole
+
+
+class UserStatusUpdate(BaseModel):
+    """Datos para activar/desactivar un usuario (uso admin)."""
+
+    is_active: bool

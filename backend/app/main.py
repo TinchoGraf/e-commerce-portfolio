@@ -13,11 +13,13 @@ from app.routers import (
     cart,
     categories,
     coupons,
+    dashboard,
     health,
     orders,
     payments,
     products,
     reviews,
+    users,
     wishlist,
 )
 
@@ -63,3 +65,5 @@ app.include_router(coupons.router, prefix="/api/coupons")
 app.include_router(addresses.router, prefix="/api/addresses")
 app.include_router(orders.router, prefix="/api/orders")
 app.include_router(payments.router, prefix="/api/payments")
+app.include_router(dashboard.router, prefix="/api/admin/dashboard")
+app.include_router(users.router, prefix="/api/admin/users")

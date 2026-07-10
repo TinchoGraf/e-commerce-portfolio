@@ -39,13 +39,20 @@ async def list_products(
     min_price: Decimal | None = None,
     max_price: Decimal | None = None,
     is_featured: bool | None = None,
+    include_inactive: bool = False,
     sort_by: str = "created_at",
     sort_order: str = "desc",
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedProductResponse:
-    """Lista productos activos con filtros, búsqueda, orden y paginación."""
+    """Lista productos con filtros, búsqueda, orden y paginación.
+
+    Por default sólo trae productos activos (catálogo público). El panel de
+    administración puede pasar `include_inactive=true` para ver también los
+    productos dados de baja (sin filtrar por `is_active`).
+    """
+    is_active = None if include_inactive else True
     result = await product_service.list_products(
         db,
         category_id=category_id,
@@ -54,6 +61,7 @@ async def list_products(
         min_price=min_price,
         max_price=max_price,
         is_featured=is_featured,
+        is_active=is_active,
         sort_by=sort_by,
         sort_order=sort_order,
         page=page,
