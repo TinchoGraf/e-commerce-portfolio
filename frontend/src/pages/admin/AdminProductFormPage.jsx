@@ -253,7 +253,7 @@ export default function AdminProductFormPage() {
               id="category_id"
               value={form.category_id}
               onChange={(event) => updateField('category_id', event.target.value)}
-              className="w-full rounded-lg border border-ink-soft/25 bg-surface px-3.5 py-2.5 text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full rounded-lg border border-ink-soft/25 bg-surface px-3 py-2.5 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="">Sin categoría</option>
               {categories.map((category) => (
@@ -272,7 +272,7 @@ export default function AdminProductFormPage() {
               id="brand_id"
               value={form.brand_id}
               onChange={(event) => updateField('brand_id', event.target.value)}
-              className="w-full rounded-lg border border-ink-soft/25 bg-surface px-3.5 py-2.5 text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full rounded-lg border border-ink-soft/25 bg-surface px-3 py-2.5 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="">Sin marca</option>
               {brands.map((brand) => (
@@ -340,6 +340,7 @@ export default function AdminProductFormPage() {
               type="checkbox"
               checked={form.is_featured}
               onChange={(event) => updateField('is_featured', event.target.checked)}
+              className="h-4 w-4 rounded border-ink-soft/25 text-brand-600 focus:ring-brand-500"
             />
             Destacado
           </label>
@@ -348,6 +349,7 @@ export default function AdminProductFormPage() {
               type="checkbox"
               checked={form.is_active}
               onChange={(event) => updateField('is_active', event.target.checked)}
+              className="h-4 w-4 rounded border-ink-soft/25 text-brand-600 focus:ring-brand-500"
             />
             Activo
           </label>

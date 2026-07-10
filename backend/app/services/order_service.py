@@ -180,7 +180,11 @@ async def get_order(
     Si `is_admin=False`, valida que la orden pertenezca al usuario (404 si
     no, para no revelar la existencia de órdenes ajenas).
     """
-    stmt = select(Order).options(selectinload(Order.items)).where(Order.id == order_id)
+    stmt = (
+        select(Order)
+        .options(selectinload(Order.items), selectinload(Order.user))
+        .where(Order.id == order_id)
+    )
     result = await db.execute(stmt)
     order = result.scalar_one_or_none()
 
@@ -216,13 +220,16 @@ async def list_all_orders(
     page_size: int = 20,
     status: OrderStatus | None = None,
     payment_status: PaymentStatus | None = None,
+    search: str | None = None,
 ) -> dict[str, Any]:
-    """Lista paginada de todas las órdenes (uso admin), filtrable por estado y pago."""
+    """Lista paginada de todas las órdenes (uso admin), filtrable por estado, pago y número de orden."""
     conditions = []
     if status is not None:
         conditions.append(Order.status == status)
     if payment_status is not None:
         conditions.append(Order.payment_status == payment_status)
+    if search:
+        conditions.append(Order.order_number.ilike(f"%{search}%"))
 
     return await _paginated_orders(db, conditions, page=page, page_size=page_size)
 
@@ -242,7 +249,7 @@ async def _paginated_orders(
 
     stmt = (
         select(Order)
-        .options(selectinload(Order.items))
+        .options(selectinload(Order.items), selectinload(Order.user))
         .order_by(Order.created_at.desc())
         .offset((page - 1) * page_size)
         .limit(page_size)

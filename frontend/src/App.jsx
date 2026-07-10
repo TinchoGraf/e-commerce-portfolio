@@ -20,6 +20,11 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminProductFormPage from './pages/admin/AdminProductFormPage';
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
+import AdminBrandsPage from './pages/admin/AdminBrandsPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminCouponsPage from './pages/admin/AdminCouponsPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -58,12 +63,17 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        {/* Fase 4A — panel de administración */}
+        {/* Fase 4 — panel de administración */}
         <Route path="admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="productos" element={<AdminProductsPage />} />
           <Route path="productos/nuevo" element={<AdminProductFormPage />} />
           <Route path="productos/:id/editar" element={<AdminProductFormPage />} />
+          <Route path="categorias" element={<AdminCategoriesPage />} />
+          <Route path="marcas" element={<AdminBrandsPage />} />
+          <Route path="pedidos" element={<AdminOrdersPage />} />
+          <Route path="cupones" element={<AdminCouponsPage />} />
+          <Route path="usuarios" element={<AdminUsersPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -29,6 +29,8 @@ export const deleteCategory = (categoryId) => client.delete(`/categories/${categ
 export const createBrand = (data) => client.post('/brands', data);
 export const updateBrand = (brandId, data) => client.put(`/brands/${brandId}`, data);
 export const deleteBrand = (brandId) => client.delete(`/brands/${brandId}`);
+export const getAdminCategories = (params) => client.get('/categories', { params });
+export const getAdminBrands = (params) => client.get('/brands', { params });
 
 // Coupons
 export const getCoupons = (params) => client.get('/coupons', { params });

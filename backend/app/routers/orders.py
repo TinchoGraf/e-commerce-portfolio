@@ -32,6 +32,16 @@ from app.utils.constants import OrderStatus, PaymentStatus, UserRole
 router = APIRouter(tags=["orders"])
 
 
+def _to_order_response_with_customer(order) -> OrderDetailResponse:
+    """Mapea una `Order` ORM a `OrderDetailResponse`, completando `customer_name`/
+    `customer_email` desde `order.user` (debe venir precargado vía `selectinload`).
+    """
+    response = OrderDetailResponse.model_validate(order)
+    response.customer_name = f"{order.user.first_name} {order.user.last_name}"
+    response.customer_email = order.user.email
+    return response
+
+
 @router.post("", response_model=OrderDetailResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
     data: OrderCreate,
@@ -70,14 +80,27 @@ async def list_all_orders(
     page_size: int = 20,
     status: OrderStatus | None = None,
     payment_status: PaymentStatus | None = None,
+    search: str | None = None,
     current_admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedOrderResponse:
-    """Lista paginada de todas las órdenes, filtrable por estado y estado de pago (uso admin)."""
+    """Lista paginada de todas las órdenes, filtrable por estado, pago y número de orden (uso admin)."""
     result = await order_service.list_all_orders(
-        db, page=page, page_size=page_size, status=status, payment_status=payment_status
+        db,
+        page=page,
+        page_size=page_size,
+        status=status,
+        payment_status=payment_status,
+        search=search,
     )
-    return PaginatedOrderResponse.model_validate(result)
+    items = [_to_order_response_with_customer(order) for order in result["items"]]
+    return PaginatedOrderResponse(
+        items=items,
+        total=result["total"],
+        page=result["page"],
+        page_size=result["page_size"],
+        pages=result["pages"],
+    )
 
 
 @router.put("/admin/{order_id}", response_model=OrderDetailResponse)
@@ -105,4 +128,4 @@ async def get_order(
     order = await order_service.get_order(
         db, current_user.id, order_id, is_admin=(current_user.role == UserRole.ADMIN)
     )
-    return OrderDetailResponse.model_validate(order)
+    return _to_order_response_with_customer(order)

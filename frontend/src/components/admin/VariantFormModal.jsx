@@ -104,6 +104,7 @@ export default function VariantFormModal({ isOpen, onClose, onSubmit, isSubmitti
             type="checkbox"
             checked={form.is_active}
             onChange={(event) => setForm((prev) => ({ ...prev, is_active: event.target.checked }))}
+            className="h-4 w-4 rounded border-ink-soft/25 text-brand-600 focus:ring-brand-500"
           />
           Activa
         </label>

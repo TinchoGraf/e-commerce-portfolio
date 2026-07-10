@@ -15,8 +15,8 @@ E-commerce completo de productos de tecnología.
 1. Cimientos: schema de BD completo, estructura FastAPI, auth JWT (register/login/me) — DONE
 2. Core del negocio (productos, categorías, marcas, carrito, checkout, pagos) — DONE
 3. Frontend (React/Vite/Tailwind) — DONE (3A + 3B + 3C)
-4. Panel de administración
-5. Rate limiting, seguridad avanzada
+4. Panel de administración — DONE (4A + 4B)
+5. Calidad y seguridad (rate limiting, seguridad avanzada) — próximo paso
 6. Deploy (Docker, CI/CD)
 
 ## Estado actual
@@ -101,6 +101,37 @@ para que el checkout completo se pueda demostrar en el portfolio.
 `/` (Home), `/catalogo`, `/categoria/:slug`, `/producto/:slug`, `/carrito`, `/login`, `/registro`,
 `/checkout` (protegida), `/checkout/exito`, `/perfil` (protegida), `/pedidos` (protegida),
 `/pedidos/:id` (protegida), `/favoritos` (protegida), `*` → 404.
+
+- **Fase 4 completada** (panel de administración), dividida en 2 partes:
+  - **4A**: backend — `dashboard_service.py` (`GET /api/admin/dashboard`: resumen, ventas últimos 30
+    días agrupadas por día, top 10 productos vendidos por cantidad, stock bajo, últimos 10 pedidos) y
+    `user_service.py` (`GET/PUT /api/admin/users`: listado paginado con filtros, detalle, cambio de
+    rol y activar/desactivar, ambos bloqueando auto-modificación del admin logueado). Ajuste a
+    `GET /api/products` para exponer `include_inactive` (uso admin) y nuevo `GET /api/products/id/{id}`
+    (detalle completo por id, incluye inactivos e imágenes/variantes, necesario porque el endpoint
+    público sólo resuelve por slug y sólo activos). Frontend: layout admin independiente
+    (`AdminLayout`/`AdminSidebar` responsive con drawer mobile/`AdminGuard` por rol), componentes
+    reutilizables (`StatsCard`, `DataTable`, `FormModal`), `AdminDashboardPage` (gráfico de barras SVG
+    hecho a mano, sin librerías de charts) y CRUD completo de productos (`AdminProductsPage` +
+    `AdminProductFormPage` con gestión de imágenes y variantes).
+  - **4B**: resto de las páginas admin, reutilizando los componentes de 4A: `AdminCategoriesPage`
+    (árbol raíz+hijos aplanado con indentación), `AdminBrandsPage`, `AdminOrdersPage` (filtros por
+    estado/pago/búsqueda por número de orden, modal de detalle con dirección/items/desglose, cambio
+    de estado restringido a las transiciones válidas de `order_service.VALID_TRANSITIONS`),
+    `AdminCouponsPage` (estado activo/expirado/inactivo calculado client-side), `AdminUsersPage`
+    (cambio de rol y activar/desactivar, deshabilitado sobre el propio admin logueado). Ajustes de
+    backend acompañando: `include_inactive` expuesto también en `GET /api/categories` y
+    `GET /api/brands` (los services ya lo soportaban, sólo faltaba el query param del router); `OrderResponse`
+    ahora incluye `customer_name`/`customer_email` (completados manualmente en el router desde
+    `Order.user` precargado con `selectinload`, no son atributos directos del modelo) y
+    `GET /api/orders/admin/all` acepta `search` (filtra por `order_number`). Cierre con una pasada de
+    ui-ux-advisor que unificó inconsistencias entre las páginas construidas por agentes distintos en
+    paralelo (colores de Badge para "inactivo", estilo de checkboxes custom, padding de selects,
+    confirmación al cancelar un pedido, header fijo en el modal de detalle de pedido).
+
+### Rutas del panel admin (`/admin`, layout propio con `AdminGuard`+`AdminLayout`)
+`/admin` (Dashboard), `/admin/productos`, `/admin/productos/nuevo`, `/admin/productos/:id/editar`,
+`/admin/categorias`, `/admin/marcas`, `/admin/pedidos`, `/admin/cupones`, `/admin/usuarios`.
 
 ## Decisiones de arquitectura
 - SQLAlchemy 2.0 estilo moderno (`mapped_column`), no legacy `Column()`.

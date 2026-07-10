@@ -62,6 +62,11 @@ class OrderResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     items: list[OrderItemResponse] = []
+    # No son atributos directos del modelo ORM: el service precarga
+    # `Order.user` y el router los completa manualmente tras la validación
+    # (uso admin, ver `dashboard_service._get_recent_orders` para el mismo patrón).
+    customer_name: str | None = None
+    customer_email: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

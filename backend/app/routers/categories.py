@@ -50,9 +50,15 @@ def _to_tree_response(category: Category) -> CategoryTreeResponse:
 
 
 @router.get("", response_model=list[CategoryTreeResponse])
-async def list_categories(db: AsyncSession = Depends(get_db)) -> list[CategoryTreeResponse]:
-    """Lista las categorías raíz activas, con sus hijos directos anidados."""
-    categories = await category_service.list_categories(db)
+async def list_categories(
+    include_inactive: bool = False, db: AsyncSession = Depends(get_db)
+) -> list[CategoryTreeResponse]:
+    """Lista las categorías raíz, con sus hijos directos anidados.
+
+    `include_inactive=False` (default) trae sólo activas (uso público).
+    `include_inactive=True` trae también inactivas (uso admin).
+    """
+    categories = await category_service.list_categories(db, include_inactive=include_inactive)
     return [_to_tree_response(category) for category in categories]
 
 

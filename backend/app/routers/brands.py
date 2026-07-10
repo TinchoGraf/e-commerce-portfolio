@@ -21,9 +21,11 @@ router = APIRouter(tags=["brands"])
 
 
 @router.get("", response_model=list[BrandResponse])
-async def list_brands(db: AsyncSession = Depends(get_db)) -> list[BrandResponse]:
-    """Lista las marcas activas."""
-    brands = await brand_service.list_brands(db)
+async def list_brands(
+    include_inactive: bool = False, db: AsyncSession = Depends(get_db)
+) -> list[BrandResponse]:
+    """Lista las marcas. `include_inactive=True` también trae las inactivas (uso admin)."""
+    brands = await brand_service.list_brands(db, include_inactive=include_inactive)
     return [BrandResponse.model_validate(brand) for brand in brands]
 
 
