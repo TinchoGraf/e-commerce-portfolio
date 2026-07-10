@@ -15,6 +15,11 @@ import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import WishlistPage from './pages/WishlistPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import AdminGuard from './components/admin/AdminGuard';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminProductFormPage from './pages/admin/AdminProductFormPage';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -51,6 +56,14 @@ function App() {
           <Route path="favoritos" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFoundPage />} />
+        </Route>
+
+        {/* Fase 4A — panel de administración */}
+        <Route path="admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="productos" element={<AdminProductsPage />} />
+          <Route path="productos/nuevo" element={<AdminProductFormPage />} />
+          <Route path="productos/:id/editar" element={<AdminProductFormPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -76,6 +76,19 @@ async def list_products(
     )
 
 
+@router.get("/id/{product_id}", response_model=ProductResponse)
+async def get_product_by_id_admin(
+    product_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
+) -> ProductResponse:
+    """Obtiene el detalle completo de un producto por id, incluyendo
+    inactivos y variantes inactivas (sólo admin, uso del panel de edición).
+    """
+    product = await product_service.get_product_by_id(db, product_id)
+    return ProductResponse.model_validate(product)
+
+
 @router.get("/{slug}", response_model=ProductResponse)
 async def get_product(slug: str, db: AsyncSession = Depends(get_db)) -> ProductResponse:
     """Obtiene el detalle de un producto activo por su slug, con imágenes,
