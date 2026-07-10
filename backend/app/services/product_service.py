@@ -223,8 +223,14 @@ async def create_product(db: AsyncSession, data: ProductCreate) -> Product:
     product = Product(**payload, slug=slug)
     db.add(product)
     await db.commit()
-    await db.refresh(product)
-    return product
+    # `refresh()` sólo recarga columnas, no relaciones: a diferencia de
+    # `update_product` (que parte de `get_product_by_id`, ya con
+    # `images`/`variants`/`category`/`brand` precargados vía `selectinload`),
+    # acá el producto es nuevo y esas relaciones nunca se cargaron. Como
+    # `ProductResponse` las serializa, hay que volver a buscarlo con el
+    # mismo `selectinload` que usa el resto del service para evitar un
+    # lazy-load síncrono fuera de contexto async (`MissingGreenlet`).
+    return await get_product_by_id(db, product.id)
 
 
 async def update_product(db: AsyncSession, product_id: uuid.UUID, data: ProductUpdate) -> Product:

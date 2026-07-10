@@ -1,6 +1,7 @@
 """Punto de entrada de la aplicación FastAPI de TechStore."""
 
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -55,12 +56,21 @@ app.add_middleware(SecurityHeadersMiddleware)
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    """Maneja errores de validación de request devolviendo un JSON claro y consistente."""
+    """Maneja errores de validación de request devolviendo un JSON claro y consistente.
+
+    `exc.errors()` puede incluir el objeto `ValueError`/`AssertionError`
+    original (en `ctx`) cuando el error viene de un `@field_validator`/
+    `@model_validator` que lo levanta directamente (ej. `UserCreate.
+    validate_password`, `CouponCreate.check_valid_dates`) — `JSONResponse`
+    usa `json.dumps` estándar, que no sabe serializar esos objetos y
+    rompería con un 500 en vez de devolver el 422 esperado. `jsonable_encoder`
+    los convierte a texto de forma segura.
+    """
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "detail": "Error de validación en los datos enviados",
-            "errors": exc.errors(),
+            "errors": jsonable_encoder(exc.errors()),
         },
     )
 
