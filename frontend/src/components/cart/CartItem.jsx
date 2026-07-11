@@ -14,6 +14,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove, className }
           <img
             src={item.productImage}
             alt={item.productName}
+            loading="lazy"
             className="h-full w-full object-cover"
           />
         ) : (

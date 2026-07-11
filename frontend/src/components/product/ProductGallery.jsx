@@ -20,6 +20,7 @@ export default function ProductGallery({ images = [], productName, className }) 
             key={activeImage.url}
             src={activeImage.url}
             alt={activeImage.alt_text || productName}
+            loading="eager"
             onLoad={() => setLoaded(true)}
             className={clsx(
               'h-full w-full object-cover transition-opacity duration-300',
@@ -53,6 +54,7 @@ export default function ProductGallery({ images = [], productName, className }) 
               <img
                 src={image.url}
                 alt={image.alt_text || productName}
+                loading="lazy"
                 className="h-full w-full object-cover"
               />
             </button>

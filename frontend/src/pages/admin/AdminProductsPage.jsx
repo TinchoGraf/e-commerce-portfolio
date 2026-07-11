@@ -130,6 +130,7 @@ export default function AdminProductsPage() {
           <img
             src={row.primary_image_url}
             alt={row.name}
+            loading="lazy"
             className="h-10 w-10 rounded object-cover"
           />
         ) : (

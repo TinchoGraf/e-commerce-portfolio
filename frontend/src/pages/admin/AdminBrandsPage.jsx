@@ -119,7 +119,12 @@ export default function AdminBrandsPage() {
       width: 56,
       render: (row) =>
         row.logo_url ? (
-          <img src={row.logo_url} alt={row.name} className="h-10 w-10 rounded object-cover" />
+          <img
+            src={row.logo_url}
+            alt={row.name}
+            loading="lazy"
+            className="h-10 w-10 rounded object-cover"
+          />
         ) : (
           <div className="h-10 w-10 rounded bg-surface-alt" />
         ),

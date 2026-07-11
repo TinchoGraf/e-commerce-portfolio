@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
@@ -15,17 +15,29 @@ import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import WishlistPage from './pages/WishlistPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import AdminGuard from './components/admin/AdminGuard';
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
-import AdminProductsPage from './pages/admin/AdminProductsPage';
-import AdminProductFormPage from './pages/admin/AdminProductFormPage';
-import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
-import AdminBrandsPage from './pages/admin/AdminBrandsPage';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminCouponsPage from './pages/admin/AdminCouponsPage';
-import AdminUsersPage from './pages/admin/AdminUsersPage';
+import Spinner from './components/ui/Spinner';
 import { useAuthStore } from './stores/authStore';
+
+// Panel de administración: code-split del bundle público. Sólo los admins
+// pagan el costo de descarga de estas rutas.
+const AdminGuard = lazy(() => import('./components/admin/AdminGuard'));
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
+const AdminProductFormPage = lazy(() => import('./pages/admin/AdminProductFormPage'));
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
+const AdminBrandsPage = lazy(() => import('./pages/admin/AdminBrandsPage'));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
+const AdminCouponsPage = lazy(() => import('./pages/admin/AdminCouponsPage'));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+
+function AdminFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Spinner size="lg" className="text-brand-600" />
+    </div>
+  );
+}
 
 function App() {
   const initialize = useAuthStore((state) => state.initialize);
@@ -63,17 +75,89 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        {/* Fase 4 — panel de administración */}
-        <Route path="admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-          <Route index element={<AdminDashboardPage />} />
-          <Route path="productos" element={<AdminProductsPage />} />
-          <Route path="productos/nuevo" element={<AdminProductFormPage />} />
-          <Route path="productos/:id/editar" element={<AdminProductFormPage />} />
-          <Route path="categorias" element={<AdminCategoriesPage />} />
-          <Route path="marcas" element={<AdminBrandsPage />} />
-          <Route path="pedidos" element={<AdminOrdersPage />} />
-          <Route path="cupones" element={<AdminCouponsPage />} />
-          <Route path="usuarios" element={<AdminUsersPage />} />
+        {/* Fase 4 — panel de administración (lazy-loaded) */}
+        <Route
+          path="admin"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <AdminGuard>
+                <AdminLayout />
+              </AdminGuard>
+            </Suspense>
+          }
+        >
+          <Route
+            index
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminDashboardPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="productos"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminProductsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="productos/nuevo"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminProductFormPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="productos/:id/editar"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminProductFormPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="categorias"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminCategoriesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="marcas"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminBrandsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="pedidos"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminOrdersPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="cupones"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminCouponsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="usuarios"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminUsersPage />
+              </Suspense>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

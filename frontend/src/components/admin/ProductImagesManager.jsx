@@ -69,6 +69,7 @@ export default function ProductImagesManager({ productId, images, onRefetch }) {
               <img
                 src={image.url}
                 alt={image.alt_text || ''}
+                loading="lazy"
                 className="h-24 w-full rounded object-cover"
               />
               <div className="flex items-center justify-between">
