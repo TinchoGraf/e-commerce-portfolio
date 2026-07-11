@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+.pytest_cache/
+tests/
+*.db
+.coverage
+htmlcov/
+alembic/versions/__pycache__/

@@ -1,0 +1,12 @@
+# Copiar este archivo a docker-compose.override.yml para desarrollo local.
+# docker-compose.override.yml ya está en .gitignore.
+services:
+  backend:
+    # Montar el código fuente como volumen para hot-reload
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "

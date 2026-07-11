@@ -1,0 +1,53 @@
+services:
+  # ---- Base de datos PostgreSQL ----
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: techstore_user
+      POSTGRES_PASSWORD: techstore_pass
+      POSTGRES_DB: techstore_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persistir los datos de la base de datos
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U techstore_user -d techstore_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---- Backend FastAPI ----
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Sobreescribir DATABASE_URL para apuntar al contenedor de PostgreSQL
+      # "db" es el nombre del servicio definido arriba
+      DATABASE_URL: postgresql+asyncpg://techstore_user:techstore_pass@db:5432/techstore_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # Esperar a que la base de datos esté lista, correr migraciones, y arrancar
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+
+  # ---- Frontend React (Nginx) ----
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

@@ -17,9 +17,11 @@ E-commerce completo de productos de tecnología.
 3. Frontend (React/Vite/Tailwind) — DONE (3A + 3B + 3C)
 4. Panel de administración — DONE (4A + 4B)
 5. Calidad y seguridad (rate limiting, seguridad avanzada, tests, performance) — DONE
-6. Deploy (Docker, CI/CD) — próximo paso
+6. Deploy (Docker, documentación) — DONE
 
 ## Estado actual
+
+**PROYECTO COMPLETADO** (6 fases, todas finalizadas).
 - **Fase 1 completada**: estructura de carpetas del backend FastAPI, 14 modelos SQLAlchemy 2.0
   (users, categories, brands, products, product_images, product_variants, addresses, cart_items,
   orders, order_items, reviews, wishlist_items, coupons, coupon_usage), schemas Pydantic base,
@@ -187,6 +189,37 @@ admin.
     (14 chunks, 0.5–16 KB cada uno) descargándose sólo al entrar a `/admin`.
   - Verificación final: 81/81 tests pasando, `npm run build` sin errores, scan de secrets limpio
     (sin `.env` trackeado, sin credenciales hardcodeadas).
+
+- **Fase 6 completada** (dockerización, documentación y preparación para deploy):
+  - **Docker**: `backend/Dockerfile` (imagen `python:3.12-slim`, multi-stage con capa de
+    dependencias separada), `frontend/Dockerfile` (multi-stage: build con `node:20-alpine`,
+    servido con `nginx:alpine`), `frontend/nginx.conf` (proxy de `/api/` al backend, fallback a
+    `index.html` para React Router), `docker-compose.yml` en la raíz (3 servicios: `db` PostgreSQL
+    16 con healthcheck, `backend` que corre `alembic upgrade head` antes de levantar uvicorn,
+    `frontend`), y `docker-compose.override.yml.example` documentando el hot-reload de desarrollo
+    (no se commitea el override real, ya estaba en `.gitignore`). No se pudo validar con
+    `docker compose build` real: Docker no está instalado en esta máquina; se validó en cambio la
+    sintaxis YAML de ambos compose files con PyYAML.
+  - **Datos de ejemplo**: `backend/scripts/seed.py`, idempotente (verifica existencia por
+    email/slug/sku/code antes de insertar), crea 1 admin (`admin@techstore.com` / `Admin123!`,
+    solo para demo), 8 categorías + 2 subcategorías bajo Audio, 6 marcas, 20 productos (con
+    imágenes placeholder, algunos con variantes reales, stock bajo, destacados y precio de
+    comparación) y 3 cupones. Probado end-to-end contra SQLite en memoria (dos corridas
+    consecutivas, la segunda no duplicó nada).
+  - **`backend/requirements-dev.txt`**: ya existía desde la Fase 5 con un formato distinto al
+    especificado; se ajustó para usar `-r requirements.txt` y no duplicar `httpx`.
+  - **`backend/.env.example`**: actualizado para apuntar a `db` como host (en vez de `localhost`)
+    y agregar `http://localhost:3000` a `CORS_ORIGINS` (puerto del frontend servido por Nginx en
+    Docker).
+  - **Documentación**: `README.md` reescrito completo (instalación con Docker y manual, testing,
+    arquitectura, decisiones técnicas, próximos pasos), `docs/API.md` (autenticación, endpoints por
+    recurso, flujo de checkout, códigos de error) y `docs/ARCHITECTURE.md` (capas, decisiones
+    técnicas con razonamiento completo, estructura de carpetas). `LICENSE` (MIT) y
+    `docs/screenshots/.gitkeep` agregados. Durante la revisión se corrigieron dos imprecisiones que
+    había introducido el agente de documentación: la tabla de endpoints del dashboard admin
+    inventaba 5 sub-rutas que no existen (el dashboard es un único `GET /api/admin/dashboard` que
+    devuelve todas las métricas anidadas en una sola respuesta) y el ejemplo de número de orden
+    usaba el prefijo `ORD-` en vez del real `TS-` (`TS-YYYYMMDD-XXXX`).
 
 ## Decisiones de arquitectura
 - SQLAlchemy 2.0 estilo moderno (`mapped_column`), no legacy `Column()`.
