@@ -16,8 +16,8 @@ E-commerce completo de productos de tecnología.
 2. Core del negocio (productos, categorías, marcas, carrito, checkout, pagos) — DONE
 3. Frontend (React/Vite/Tailwind) — DONE (3A + 3B + 3C)
 4. Panel de administración — DONE (4A + 4B)
-5. Calidad y seguridad (rate limiting, seguridad avanzada) — próximo paso
-6. Deploy (Docker, CI/CD)
+5. Calidad y seguridad (rate limiting, seguridad avanzada, tests, performance) — DONE
+6. Deploy (Docker, CI/CD) — próximo paso
 
 ## Estado actual
 - **Fase 1 completada**: estructura de carpetas del backend FastAPI, 14 modelos SQLAlchemy 2.0
@@ -131,7 +131,62 @@ para que el checkout completo se pueda demostrar en el portfolio.
 
 ### Rutas del panel admin (`/admin`, layout propio con `AdminGuard`+`AdminLayout`)
 `/admin` (Dashboard), `/admin/productos`, `/admin/productos/nuevo`, `/admin/productos/:id/editar`,
-`/admin/categorias`, `/admin/marcas`, `/admin/pedidos`, `/admin/cupones`, `/admin/usuarios`.
+`/admin/categorias`, `/admin/marcas`, `/admin/pedidos`, `/admin/cupones`, `/admin/usuarios`. Rutas
+lazy-loaded (`React.lazy`+`Suspense`) desde la Fase 5: el bundle público no descarga el código del
+admin.
+
+- **Fase 5 completada** (calidad, seguridad, tests y performance), en 4 pasadas secuenciales:
+  - **Seguridad** (`security-auditor`): auditoría completa del backend contra un checklist de
+    auth/validación/CORS/datos sensibles. Encontró y corrigió 2 vulnerabilidades reales: (1)
+    `POST /payments/mock-checkout/{order_id}` no requería autenticación ni validaba ownership —
+    cualquiera podía marcar como pagada cualquier orden conociendo el UUID; ahora exige
+    `get_current_user` + ownership (o admin) y sólo funciona si no hay `MERCADOPAGO_ACCESS_TOKEN`
+    real configurado; (2) el webhook de pagos no validaba la firma del caller; ahora
+    `payment_service.verify_webhook_signature` valida HMAC-SHA256 contra
+    `MERCADOPAGO_WEBHOOK_SECRET` (se omite con warning explícito si no está configurado, esperado en
+    modo mock). Además: rate limiting real en memoria (`middleware/rate_limiter.py`, ventana
+    deslizante por IP — 100 req/min general, 10 req/min en login/register), headers de seguridad
+    HTTP (`middleware/security_headers.py` — CSP-adyacentes: X-Frame-Options, HSTS, etc.), y
+    `get_current_user` ahora rechaza (403) usuarios con `is_active=False`. Recomendaciones abiertas
+    (no implementadas): pinnear versiones en `requirements.txt`, locking de stock
+    (`SELECT FOR UPDATE`) en `order_service.create_order` para eliminar un riesgo teórico de
+    overselling bajo checkouts concurrentes sobre el mismo producto.
+  - **Code review** (`code-reviewer`): corrigió una violación de capas (`routers/categories.py`
+    importaba `sqlalchemy.inspect` directamente — movido a `category_service.children_loaded()`),
+    varios commits redundantes en routers que llamaban a un service que ya comiteaba internamente
+    (categories/brands/cart/wishlist/products), y un bug funcional real en
+    `AdminCategoriesPage.jsx` (`Number(parent_id)` sobre un UUID siempre daba `NaN`→`null`, rompiendo
+    la asignación de categoría padre desde el panel admin). Decisión documentada: **no** se
+    paralelizó `dashboard_service.get_dashboard_metrics` con `asyncio.gather` porque las 5
+    sub-queries comparten la misma `AsyncSession` por request (`Depends(get_db)`), que no soporta
+    queries concurrentes sobre la misma conexión.
+  - **Tests** (`test-runner`): suite de **81 tests con pytest** (`backend/tests/`, SQLite en memoria
+    vía `aiosqlite`, sin necesitar PostgreSQL) cubriendo auth, productos, carrito, checkout/órdenes,
+    reviews y seguridad (headers, rate limiting, ownership, `cost_price` no expuesto, control de
+    acceso admin). La suite reveló 3 bugs reales de la aplicación, corregidos aparte: (1) `bcrypt>=4.1`
+    rompe `passlib` 1.7.4 (`hash_password`/`verify_password` fallaban con cualquier password en un
+    `pip install` fresco) — pinneado `bcrypt<4.1` en `requirements.txt`; (2)
+    `product_service.create_product` no precargaba `images`/`variants`/`category`/`brand` antes de
+    devolver el producto nuevo (a diferencia de `update_product`, que parte de `get_product_by_id`
+    con `selectinload`), causando un `MissingGreenlet` al serializar `ProductResponse` — ahora
+    re-obtiene el producto vía `get_product_by_id` tras el commit; (3) el handler de
+    `RequestValidationError` en `main.py` usaba `JSONResponse` con `exc.errors()` crudo, que puede
+    incluir el `ValueError` original de un `@field_validator` (ej. `UserCreate.validate_password`) no
+    serializable por `json.dumps` estándar, devolviendo 500 en vez de 422 — ahora usa
+    `jsonable_encoder`.
+  - **Performance** (`performance-optimizer`): confirmó que no hay N+1 reales (services ya usan
+    `selectinload` consistentemente) y que los listados grandes están paginados (categorías/marcas/
+    cupones son listas sin paginar por diseño, catálogos chicos). Evaluó un índice para el `ilike`
+    search de `Product.name` y decidió NO agregarlo: un B-tree no acelera `LIKE '%term%'` con
+    wildcard inicial, y el proyecto no tiene la extensión `pg_trgm` habilitada en ninguna migración
+    (documentado como mejora futura de infraestructura si hace falta). Agregó `loading="lazy"` en
+    imágenes fuera del viewport inicial (`CartItem`, thumbnails de `ProductGallery`, tablas del
+    admin), dejando explícito `loading="eager"` en la imagen principal de `ProductGallery` (above the
+    fold, afecta LCP). Introdujo code-splitting por rutas del panel admin (`React.lazy`+`Suspense` en
+    `App.jsx`): el bundle público bajó de 129.50 KB a 97.02 KB gzip (-25%), con el código del admin
+    (14 chunks, 0.5–16 KB cada uno) descargándose sólo al entrar a `/admin`.
+  - Verificación final: 81/81 tests pasando, `npm run build` sin errores, scan de secrets limpio
+    (sin `.env` trackeado, sin credenciales hardcodeadas).
 
 ## Decisiones de arquitectura
 - SQLAlchemy 2.0 estilo moderno (`mapped_column`), no legacy `Column()`.
